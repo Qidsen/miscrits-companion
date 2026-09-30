@@ -177,3 +177,34 @@ Needs the user's GitHub repo; until then everything runs locally with `npm run d
 - Damage formula and element table are not officially documented; they are approximate and configurable.
 - miscritcompanion.com endpoints may change or close; the snapshot plus "keep previous on failure" logic softens this.
 - Map marker names must be matched to miscrits by name; unmatched markers are logged during sync and shown without a detail link.
+
+## 12. Addendum (2026-09-30, after Plan 1 review with the user)
+
+Everything below is in scope for Plan 2, together with all remaining items of section 5.
+
+### 12.1 Visual overhaul ("game atlas" style)
+- Fonts: Nunito (body) + Baloo 2 (headings) via Google Fonts.
+- Deep dark background with gradients, glass panels (backdrop blur), rarity glow, per-element accent colors.
+- Shared `MiscritCard`: full sprite (`_back.png`) on an element-tinted backdrop, rarity frame/glow, name, element icons, spawn-day chips. Replaces small avatar tiles on Today, Dex, Map panel.
+- Hover/appear animations; respects `prefers-reduced-motion`.
+- Navigation: primary links + "More" menu on desktop; bottom tab bar on phones.
+
+### 12.2 Map zones
+- Zones are derived from data: every marker belongs to exactly one zone of its region (verified: 100% of markers). A zone's shape = padded convex hull of its markers; 1–2 markers → circle.
+- Each zone has a color, a permanent label on the map, and a panel block in the side panel.
+- Hovering a zone (map or panel) highlights it and dims other zones' markers; hovering a miscrit card pulses its marker; clicking flies to it.
+- Region switcher = strip of map thumbnails with names and counts. Marker popup = rich card.
+
+### 12.3 Collection & game account
+- No official game API exists; automated account sync (bot friend / protocol reverse-engineering) is out of scope (ToS/ban risk).
+- Instead: quick-mark mode in Dex (click tile toggles caught), paste a list of names to mark, JSON export/import, and a share link that encodes the collection so friends can view it and compare with their own.
+
+### 12.4 Mini games (`#/games`)
+1. "Who's that Miscrit?" — silhouette, 4 options, reveal, streak + best; difficulty All / Epic+.
+2. Memory — avatar pairs, moves + time, best result.
+3. "Guess the evolution" — show first form, pick its final form from 4.
+Best scores stored locally.
+
+### 12.5 Game rules used
+- Element cycles: Fire > Nature > Water > Fire; Earth > Lightning > Wind > Earth. Physical/Misc are neutral. Dual-element defender = product of both parts. Multipliers (strong 1.5, weak 0.5) live in `formulaConfig.ts` and are approximate.
+- Stat growth per level by tier (community data): Weak 0–2, Moderate 1–3, Strong 1–3, Max 2–4, Elite 2–4 (+2). Stats stop growing after level 35.
