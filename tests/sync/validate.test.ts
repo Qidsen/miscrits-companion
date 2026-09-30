@@ -37,3 +37,12 @@ test('checkRawShape rejects wrong source shapes with a clear message', () => {
   expect(() => checkRawShape({ ...ok, markers: { Forest: undefined } })).toThrow(/markers Forest/)
   expect(() => checkRawShape({ ...ok, game: {} })).toThrow(/game/)
 })
+
+test('rejects a region whose markers vanished', () => {
+  const s = snap(100, 0); s.markers = { Forest: [], Moon: [] }
+  expect(() => validateSnapshot(s, { miscrits: 100, markers: 0, perRegion: { Forest: 5, Moon: 0 } })).toThrow(/Forest/)
+})
+test('rejects unknown stat tier', () => {
+  const s = snap(1); s.miscrits[0] = m(1, { stats: { ...s.miscrits[0].stats, hp: 'Huge' as never } })
+  expect(() => validateSnapshot(s, null)).toThrow(/tier/)
+})

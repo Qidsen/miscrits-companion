@@ -28,7 +28,7 @@ export interface Marker {
 }
 export interface MapInfo { file: string; width: number; height: number }
 export interface Region { name: string; zones: Record<string, string>; map: MapInfo | null }
-export interface Meta { syncedAt: string; counts: { miscrits: number; markers: number; relics: number }; warnings: string[] }
+export interface Meta { syncedAt: string; counts: { miscrits: number; markers: number; relics: number; perRegion?: Record<string, number> }; warnings: string[] }
 export interface Snapshot {
   miscrits: Miscrit[]; relics: Relic[]; regions: Region[]
   markers: Record<string, Marker[]>; warnings: string[]

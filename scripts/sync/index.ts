@@ -5,7 +5,7 @@ import { fetchJson } from './http'
 import { syncMaps } from './maps'
 import { normalize, type RawInput } from './normalize'
 import { AREA_NAMES, GAME_JSON, MAP_FILES, ORGANIZED, RELICS, markersUrl } from './sources'
-import { checkRawShape, markerCount, validateSnapshot } from './validate'
+import { checkRawShape, markerCount, perRegionCounts, validateSnapshot } from './validate'
 
 const ROOT = process.cwd()
 const RAW = join(ROOT, 'data-raw')
@@ -54,11 +54,11 @@ async function main() {
   warnings.push(...snap.warnings)
 
   const prevMeta = readJson<Meta>(join(OUT, 'meta.json'))
-  validateSnapshot(snap, prevMeta ? { miscrits: prevMeta.counts.miscrits, markers: prevMeta.counts.markers } : null)
+  validateSnapshot(snap, prevMeta ? { miscrits: prevMeta.counts.miscrits, markers: prevMeta.counts.markers, perRegion: prevMeta.counts.perRegion } : null)
 
   const meta: Meta = {
     syncedAt: new Date().toISOString(),
-    counts: { miscrits: snap.miscrits.length, markers: markerCount(snap), relics: snap.relics.length },
+    counts: { miscrits: snap.miscrits.length, markers: markerCount(snap), relics: snap.relics.length, perRegion: perRegionCounts(snap) },
     warnings,
   }
   for (const [path, data] of pendingRaw) writeJson(path, data)

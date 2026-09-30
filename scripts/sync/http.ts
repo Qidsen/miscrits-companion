@@ -3,12 +3,15 @@ async function fetchWithRetry(url: string, tries = 3, timeoutMs = 60_000): Promi
   for (let i = 0; i < tries; i++) {
     try {
       const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), headers: { 'user-agent': 'miscrits-companion-sync' } })
-      if (!res.ok) throw new Error(`HTTP ${res.status} ${url}`)
-      return res
+      if (res.ok) return res
+      const err = new Error(`HTTP ${res.status} ${url}`)
+      if (res.status >= 400 && res.status < 500) throw Object.assign(err, { final: true }) // client errors won't fix themselves
+      last = err
     } catch (e) {
+      if ((e as { final?: boolean }).final) throw e
       last = e
-      await new Promise(r => setTimeout(r, 1000 * (i + 1)))
     }
+    if (i < tries - 1) await new Promise(r => setTimeout(r, 1000 * (i + 1)))
   }
   throw last
 }
