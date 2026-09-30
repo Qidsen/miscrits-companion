@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { CSSProperties, MouseEventHandler, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Miscrit } from '../data/types'
 import { useT, type I18nKey } from '../i18n'
@@ -17,7 +17,7 @@ const SPRITE: Record<CardSize, number> = { xs: 40, sm: 56, md: 96, lg: 150 }
 interface Props {
   m: Miscrit; size?: CardSize; showDays?: boolean; day?: number; region?: string
   highlighted?: boolean; quickMark?: boolean; onHover?: (id: number | null) => void
-  onClick?: () => void; extra?: ReactNode
+  onClick?: MouseEventHandler<HTMLAnchorElement>; extra?: ReactNode
 }
 
 export function MiscritCard({ m, size = 'md', showDays, day, region, highlighted, quickMark, onHover, onClick, extra }: Props) {

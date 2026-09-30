@@ -1,18 +1,39 @@
-.map-page { display: grid; grid-template-columns: 260px 1fr; gap: 12px; padding: 12px 16px; max-width: 1600px; margin: 0 auto; height: calc(100vh - 64px); }
-.map-side { overflow-y: auto; padding-right: 4px; }
-.map-regions { display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
-.map-regions a { padding: 6px 10px; border-radius: var(--radius-s); display: flex; justify-content: space-between; }
-.map-regions a.active { background: var(--bg-3); color: var(--accent); }
-.map-zone { margin-bottom: 10px; }
-.map-zone-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.map-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.map-toolbar { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-.map-canvas { flex: 1; min-height: 360px; }
+.map-page { max-width: 1760px; margin: 0 auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; }
+.region-strip { padding: 2px 2px 8px; }
+.region-thumb { position: relative; width: 168px; height: 92px; border-radius: 14px; overflow: hidden; background: var(--bg-3) center / cover no-repeat;
+  border: 2px solid var(--line); display: flex; align-items: flex-end; justify-content: space-between; padding: 8px 10px; transition: transform .18s, border-color .18s, box-shadow .18s; }
+.region-thumb::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .05) 30%, rgba(5, 8, 14, .9)); transition: background .18s; }
+.region-thumb:hover { transform: translateY(-2px); border-color: var(--line-2); }
+.region-thumb.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 24px -6px var(--accent); }
+.region-thumb-name { position: relative; font-family: var(--font-head); font-weight: 800; font-size: 15px; line-height: 1.1; text-shadow: 0 1px 3px #000; }
+.region-thumb-count { position: relative; font-size: 12px; font-weight: 900; background: rgba(255, 181, 71, .9); color: #1b1206; border-radius: 999px; padding: 1px 8px; }
+
+.map-layout { display: grid; grid-template-columns: minmax(340px, 400px) 1fr; gap: 14px; height: calc(100vh - var(--header-h) - 150px); min-height: 520px; }
+.map-panel { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.map-panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.map-panel-head h1 { margin: 0; font-size: 28px; }
+.map-panel-head .count, .zone-head .count { font-size: 12px; font-weight: 800; color: var(--text-2); background: var(--bg-3); border-radius: 999px; padding: 2px 10px; white-space: nowrap; }
+.map-filters { display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.chip-icon { padding: 5px 8px; }
+.map-stage { position: relative; overflow: hidden; padding: 0; }
+.map-stage .region-map { height: 100% !important; }
 .map-empty { padding: 24px; }
-@media (max-width: 860px) {
-  .map-page { grid-template-columns: 1fr; height: auto; }
-  .map-side { order: 2; }
-  .map-regions { flex-direction: row; overflow-x: auto; }
-  .map-regions a { white-space: nowrap; }
-  .map-canvas { height: 70vh; }
+
+.zone-panel { display: flex; flex-direction: column; gap: 12px; }
+.zone-block { border-radius: var(--radius-s); background: rgba(255, 255, 255, .02); border: 1px solid var(--line); border-left: 4px solid var(--zc); padding: 10px;
+  transition: background .15s, border-color .15s, box-shadow .15s; }
+.zone-block.on { background: color-mix(in srgb, var(--zc) 10%, transparent); border-color: var(--zc); box-shadow: 0 0 20px -8px var(--zc); }
+.zone-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.zone-head h3 { margin: 0; flex: 1; font-size: 16px; }
+.zone-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--zc); box-shadow: 0 0 10px var(--zc); }
+.zone-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.zone-empty { padding: 20px 4px; }
+.zone-hint { margin: 0; }
+
+@media (max-width: 960px) {
+  .map-layout { grid-template-columns: 1fr; height: auto; }
+  .map-stage { order: -1; height: 62vh; min-height: 380px; }
+  .map-panel { overflow: visible; }
+  .region-thumb { width: 140px; height: 78px; }
 }
+@media (max-width: 420px) { .zone-cards { grid-template-columns: 1fr; } }

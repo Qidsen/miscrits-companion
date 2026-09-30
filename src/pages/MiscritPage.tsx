@@ -82,7 +82,7 @@ function MiscritPage({ id }: { id?: string }) {
           {next && <div className="small">{t('m.nextAvail', { day: dayShort(t, next.day), when: next.inDays === 0 ? t('day.today') : t('day.inDays', { n: next.inDays }) })}</div>}
           {firstMarker && markerRegion?.map ? (
             <>
-              <div className="miscrit-minimap"><RegionMap region={markerRegion} markers={[firstMarker]} focusId={firstMarker.id} compact height={220} /></div>
+              <div className="miscrit-minimap"><RegionMap region={markerRegion} markers={[firstMarker]} flyTo={{ id: firstMarker.id, nonce: 0 }} compact height={220} /></div>
               <Link className="btn" to={`/map/${encodeURIComponent(firstMarker.region)}?focus=${firstMarker.id}`}>{t('m.openMap')} →</Link>
             </>
           ) : m.spawns.length > 0 && <div className="small muted">{t('m.noMarker')}</div>}

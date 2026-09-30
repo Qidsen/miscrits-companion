@@ -39,3 +39,16 @@ export function miscritOfTheDay(miscrits: Miscrit[], now: Date): Miscrit {
   const hash = (dayIndex * 2654435761) >>> 0
   return miscrits[hash % miscrits.length]
 }
+
+/** Zones of one region with the miscrits that spawn there on `day` (null = any day). */
+export function zoneGroups(miscrits: Miscrit[], region: string, day: number | null): { zone: string; miscrits: Miscrit[] }[] {
+  const zones = new Map<string, Miscrit[]>()
+  for (const m of miscrits) for (const s of m.spawns) {
+    if (s.region !== region) continue
+    if (day !== null && s.days !== 'all' && !s.days.includes(day)) continue
+    const list = zones.get(s.zone) ?? []
+    if (!list.includes(m)) list.push(m)
+    zones.set(s.zone, list)
+  }
+  return [...zones.entries()].sort((a, b) => Number(a[0]) - Number(b[0])).map(([zone, list]) => ({ zone, miscrits: list.sort(byRarityThenName) }))
+}

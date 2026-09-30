@@ -35,3 +35,10 @@ test('rareAvailable: Exotic/Legendary available that day, rarest first', () => {
   expect(rareAvailable(list, 3).map(m => m.id)).toEqual([2])
   expect(rareAvailable(list, 4).map(m => m.id)).toEqual([])
 })
+
+import { zoneGroups } from '../../src/domain/today'
+test('zoneGroups for a region, by day or any day', () => {
+  expect(zoneGroups(list, 'Forest', 3)).toEqual([{ zone: '2', miscrits: [list[1], list[2]] }])
+  expect(zoneGroups(list, 'Forest', null).map(g => [g.zone, g.miscrits.map(m => m.id)])).toEqual([['1', [3]], ['2', [2, 3]]])
+  expect(zoneGroups(list, 'Nowhere', null)).toEqual([])
+})

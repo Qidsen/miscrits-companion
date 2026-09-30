@@ -37,4 +37,8 @@ export const en = {
   'lang.switch': "Switch language",
   'card.caught': "Caught",
   'card.mark': "Tap to mark caught",
+  'map.noneToday': "Nobody spawns here on this day",
+  'map.flyHint': "Hover a zone to highlight it. Click a miscrit to find it on the map.",
+  'map.filters': "Filters",
+  'map.onMap': "{n} on the map",
 } as const

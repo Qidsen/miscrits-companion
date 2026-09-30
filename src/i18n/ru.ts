@@ -39,4 +39,8 @@ export const ru: Record<keyof typeof en, string> = {
   'lang.switch': "Сменить язык",
   'card.caught': "Пойман",
   'card.mark': "Нажми, чтобы отметить",
+  'map.noneToday': "В этот день здесь никого",
+  'map.flyHint': "Наведи на зону, чтобы подсветить её. Нажми на мискрита, чтобы найти его на карте.",
+  'map.filters': "Фильтры",
+  'map.onMap': "На карте: {n}",
 }
