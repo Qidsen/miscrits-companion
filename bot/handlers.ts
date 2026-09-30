@@ -12,7 +12,7 @@ export interface BotDeps {
   deliver(m: OutMsg): Promise<'ok' | 'blocked' | 'error'>
   now(): Date
   siteUrl: string; botName: string; adminToken?: string
-  /** personalised card renderer (Vercel); without it the bot falls back to the day card + sprite album */
+  /** personalised card renderer (Netlify); without it the bot falls back to the day card + sprite album */
   cardUrl?: string
 }
 

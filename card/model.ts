@@ -1,4 +1,4 @@
-// Self-contained (deployed as its own Vercel project): only type imports from the main repo.
+// Self-contained (deployed as its own Netlify site): only type imports from the main repo.
 import type { BotData } from '../scripts/sync/botData'
 
 export interface Tile { id: number; name: string; rarity: string; rarityLabel: string; place: string; days: string; sprite: string; thumb: string | null }

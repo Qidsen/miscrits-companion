@@ -2,6 +2,6 @@
   "name": "miscrits-card",
   "private": true,
   "type": "module",
-  "description": "Renders personalised hunt cards for the Miscrits Companion Telegram bot (Vercel Edge Function)",
+  "description": "Renders personalised hunt cards for the Miscrits Companion Telegram bot (Netlify Function)",
   "dependencies": { "@vercel/og": "^0.8.5" }
 }
