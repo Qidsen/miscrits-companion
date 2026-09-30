@@ -24,7 +24,33 @@ test('/start <token> links the chat to the site (only a hash of the token is sto
   expect(r.state.links).toEqual({ [key]: 5 })
   expect(JSON.stringify(r.state)).not.toContain(TOKEN)
   expect(r.state.subs.map(s => s.chatId)).toEqual([5])
-  expect(r.replies[0].text).toMatch(/подключ/i)
+  // the list hasn't arrived yet: the bot must not claim it's all set
+  expect(r.replies[0].text).toMatch(/жду|секунд/i)
+  expect(r.replies[0].text).not.toMatch(/подключён!/i)
+  expect(r.state.pending).toEqual([5])
+})
+
+test('after /start the first sync is confirmed with the real count, even if the chat already had a list', async () => {
+  const key = await linkKey(TOKEN)
+  const sent: { chatId: number; text?: string }[] = []
+  let stored: BotState = { ...EMPTY_STATE, links: { [key]: 5 }, pending: [5], subs: [{ chatId: 5, name: 'Ann', hunt: [1, 2] }] }
+  const d: BotDeps = {
+    loadState: async () => stored, saveState: async s => { stored = s },
+    data: async () => ({ data: ctx.data, changelog: [] }), deliver: async m => { sent.push(m); return 'ok' },
+    now: () => ctx.now, siteUrl: ctx.siteUrl, botName: 'b',
+  }
+  await syncHunt(d, TOKEN, [1, 2]) // same list: still confirmed once
+  expect(sent).toHaveLength(1); expect(sent[0].text).toMatch(/подключён/i); expect(sent[0].text).toMatch(/2/)
+  expect(stored.pending).toEqual([])
+  await syncHunt(d, TOKEN, [1, 2, 3])
+  expect(sent).toHaveLength(1)
+})
+
+test('/today while waiting for the first sync says so', () => {
+  const s = { ...EMPTY_STATE, links: { k: 5 }, pending: [5], subs: [{ chatId: 5, name: 'Ann', hunt: [1] }] }
+  const r = applyUpdate(s, { update_id: 4, message: { chat: { id: 5, type: 'private' }, text: '/today' } }, ctx)
+  expect(r.replies).toHaveLength(1)
+  expect(r.replies[0].text).toMatch(/жду/i)
 })
 
 test('the site pushes its hunt list; unknown tokens are rejected', async () => {
@@ -43,4 +69,26 @@ test('/unlink drops the link but keeps the subscription', async () => {
   const r = applyUpdate(s, { update_id: 2, message: { chat: { id: 5, type: 'private' }, text: '/unlink' } }, ctx)
   expect(r.state.links).toEqual({})
   expect(r.state.subs).toHaveLength(1)
+})
+
+test('first list from the site is confirmed in the chat; later syncs are silent', async () => {
+  const key = await linkKey(TOKEN)
+  const sent: { chatId: number; text?: string }[] = []
+  let stored: BotState = { ...EMPTY_STATE, links: { [key]: 5 }, subs: [{ chatId: 5, name: 'Ann', hunt: [] }] }
+  const d: BotDeps = {
+    loadState: async () => stored, saveState: async s => { stored = s },
+    data: async () => ({ data: ctx.data, changelog: [] }), deliver: async m => { sent.push(m); return 'ok' },
+    now: () => ctx.now, siteUrl: ctx.siteUrl, botName: 'b',
+  }
+  await syncHunt(d, TOKEN, [1, 2])
+  expect(sent).toHaveLength(1); expect(sent[0].text).toMatch(/2/)
+  await syncHunt(d, TOKEN, [1, 2, 3])
+  expect(sent).toHaveLength(1)
+})
+
+test('/today for a linked chat without a list yet says we are waiting for the site', () => {
+  const s = { ...EMPTY_STATE, links: { k: 5 }, subs: [{ chatId: 5, name: 'Ann', hunt: [] }] }
+  const r = applyUpdate(s, { update_id: 3, message: { chat: { id: 5, type: 'private' }, text: '/today' } }, ctx)
+  expect(r.replies[0].text).toMatch(/сайт/i)
+  expect(r.replies[0].text).not.toMatch(/пуст/i)
 })
