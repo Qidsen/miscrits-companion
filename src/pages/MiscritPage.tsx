@@ -4,6 +4,7 @@ import { useData } from '../data/DataProvider'
 import { elementLabel, zoneLabel, dayShort, regionLabel, useT } from '../i18n'
 import { nextAvailableDay } from '../domain/schedule'
 import { elementGradient, elementColor } from '../styles/elements'
+import { toggleCaught } from '../store/actions'
 import { useCollection } from '../store/collection'
 import { useHunt } from '../store/hunt'
 import { useGameDay } from '../hooks/useGameDay'
@@ -29,7 +30,7 @@ function MiscritPage({ id }: { id?: string }) {
   const { day: today } = useGameDay()
   const m = byId.get(Number(id))
   const [evo, setEvo] = useState(0)
-  const { caught, favorites, toggleCaught, toggleFavorite } = useCollection()
+  const { caught, favorites, toggleFavorite } = useCollection()
   const hunt = useHunt()
   if (!m) return <NotFound />
 
