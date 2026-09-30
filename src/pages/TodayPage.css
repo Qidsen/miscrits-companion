@@ -1,6 +1,33 @@
-.today-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
-.motd { display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-left: 3px solid var(--r); }
-.today-controls { margin-bottom: 16px; }
-.today-section { padding: 16px; margin-bottom: 16px; }
-.today-section.highlight { border-color: var(--accent); }
-.today-zone + .today-zone { margin-top: 14px; }
+.upper { text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
+.today-hero { display: grid; grid-template-columns: 1fr auto; gap: 24px; padding: 28px; margin-bottom: 18px; position: relative; overflow: hidden;
+  background: radial-gradient(700px 300px at 0% 0%, rgba(255, 181, 71, .14), transparent 70%), radial-gradient(600px 300px at 100% 100%, rgba(79, 195, 247, .14), transparent 70%), var(--glass); }
+.today-hero h1 { font-size: 40px; margin: 6px 0 14px; }
+.today-gameday { display: inline-flex; gap: 6px; padding: 4px 12px; border-radius: 999px; background: var(--bg-3); border: 1px solid var(--line); font-size: 13px; font-weight: 700; color: var(--text-2); }
+.today-gameday b { color: var(--accent); }
+.big-countdown-time { font-family: var(--font-head); font-weight: 800; font-size: 64px; line-height: 1; letter-spacing: 1px; font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, #ffe08a, #ff8a3d); -webkit-background-clip: text; background-clip: text; color: transparent; margin: 4px 0; }
+.today-stats { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.today-stats > div { display: flex; flex-direction: column; padding: 10px 16px; border-radius: var(--radius-s); background: rgba(255, 255, 255, .04); border: 1px solid var(--line); min-width: 110px; }
+.today-stats b { font-family: var(--font-head); font-size: 28px; line-height: 1; }
+.today-stats span { font-size: 12px; color: var(--text-2); font-weight: 700; }
+.today-motd { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.today-controls { margin-bottom: 18px; }
+.today-section { margin-bottom: 24px; }
+.showcase { padding: 6px 2px 14px; }
+.region-section { margin-bottom: 18px; overflow: hidden; }
+.region-banner { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; min-height: 110px; padding: 16px 20px; position: relative;
+  background: var(--bg-3) center / cover no-repeat; }
+.region-banner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8, 11, 18, .92) 10%, rgba(8, 11, 18, .45) 60%, rgba(8, 11, 18, .75)); }
+.region-banner h2 { position: relative; margin: 0; font-size: 28px; text-shadow: 0 2px 6px #000; }
+.region-banner-go { position: relative; font-weight: 800; font-size: 13px; color: var(--accent); }
+.region-zones { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 18px; }
+.zone-title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.zone-title .count { font-family: var(--font); font-size: 12px; color: var(--text-2); background: var(--bg-3); border-radius: 999px; padding: 1px 9px; }
+.zone-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px currentColor; }
+@media (max-width: 760px) {
+  .today-hero { grid-template-columns: 1fr; padding: 20px; }
+  .today-hero h1 { font-size: 28px; }
+  .big-countdown-time { font-size: 46px; }
+  .today-stats > div { min-width: 0; flex: 1; }
+  .region-banner { min-height: 84px; }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useLayoutEffect, useState, type ReactNode } from 'react'
 import { Header } from './Header'
 import { Footer } from './Footer'
 import { SearchPalette } from './SearchPalette'
@@ -9,7 +9,8 @@ const isTyping = (el: EventTarget | null) =>
 
 export function Layout({ children }: { children: ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false)
-  useEffect(() => {
+  // layout effect: hotkeys are live before the first paint, so a visible UI always responds
+  useLayoutEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setSearchOpen(true) }
       else if (e.key === '/' && !isTyping(e.target)) { e.preventDefault(); setSearchOpen(true) }
