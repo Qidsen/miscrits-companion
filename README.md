@@ -21,3 +21,5 @@ commits changes, builds. Deploying to GitHub Pages needs a public repo (or a pai
 enable Pages with source "GitHub Actions" and set the repository variable `PAGES_ENABLED=true`.
 
 The site is a PWA: on a phone use "Add to Home screen"; it works offline after the first visit.
+
+Telegram bot (daily digests, hunt alerts): see `docs/telegram-setup.md`.

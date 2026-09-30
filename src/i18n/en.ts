@@ -258,4 +258,9 @@ export const en = {
   'tour.badResult': "This result link is broken or was edited.",
   'tour.colName': "Friend",
   'tour.legendary': "Legendary",
+  'tg.title': "Daily Telegram alerts",
+  'tg.hint': "Every day after 03:00 Kyiv the bot tells you who from this list spawns today.",
+  'tg.step1': "1. Open the bot",
+  'tg.step2': "2. Send it this command",
+  'tg.note': "After changing the list, send the new command again. The bot answers within ~15–30 min.",
 } as const

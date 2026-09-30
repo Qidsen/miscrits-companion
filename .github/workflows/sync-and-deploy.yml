@@ -42,6 +42,8 @@ jobs:
             echo "No data changes"
           fi
       - run: npm run build
+        env:
+          VITE_BOT_USERNAME: ${{ vars.BOT_USERNAME }}
       - uses: actions/upload-pages-artifact@v3
         if: vars.PAGES_ENABLED == 'true'
         with:
