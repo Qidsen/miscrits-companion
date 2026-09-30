@@ -26,12 +26,11 @@ export function ComparePage() {
   const list = ids.map(id => byId.get(id)!)
   const setIds = (next: number[]) => setParams(next.length ? { ids: next.join(',') } : {}, { replace: true })
   const best = Object.fromEntries(KEYS.map(k => [k, Math.max(0, ...list.map(m => TIER_VALUE[m.stats[k]]))]))
-  const cols = list.length + (list.length < 4 ? 1 : 0)
 
   return (
     <div className="container fade-in">
       <div className="tool-head"><div><h1>⚖️ {t('cmp.title')}</h1><p className="muted">{t('cmp.hint')}</p></div></div>
-      <div className="cmp-grid" style={{ gridTemplateColumns: `repeat(${Math.max(cols, 1)}, minmax(0, 1fr))` }}>
+      <div className="cmp-grid">
         {list.map(m => (
           <div key={m.id} className={`card cmp-col rarity-${m.rarity}`} style={{ '--el': elementGradient(m.element) } as CSSProperties}>
             <button className="btn" style={{ alignSelf: 'flex-end' }} onClick={() => setIds(ids.filter(x => x !== m.id))} aria-label={t('pick.remove')}>✕</button>

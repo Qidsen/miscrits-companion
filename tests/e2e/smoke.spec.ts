@@ -122,3 +122,49 @@ test('damage calculator shows a result table', async ({ page }) => {
   await page.goto('#/calc?a=20.30&d=1.30')
   await expect(page.getByTestId('dmg-table').locator('tbody tr').first()).toBeVisible()
 })
+
+test('game day catches up after the laptop sleeps (no timers fired)', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-09-29T22:00:00Z') }) // Kyiv 01:00 Wed → game Tue
+  await page.goto('#/')
+  await expect(page.locator('[data-testid="game-day"]')).toHaveText(/Вторник|Tuesday/)
+  await page.clock.setSystemTime(new Date('2026-09-30T06:00:00Z')) // woke up at 09:00 Kyiv
+  await page.clock.runFor(61_000)
+  await expect(page.locator('[data-testid="game-day"]')).toHaveText(/Среда|Wednesday/)
+})
+
+test('map focus link works for a miscrit that does not spawn today', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-09-30T12:00:00Z') }) // Wednesday; Waddles spawns Sun/Mon/Thu
+  await page.goto('#/map/Forest?focus=0779dfa8-1ae8-478f-92c6-c50bdc1a1569')
+  await expect(page.locator('.map-pin-focus')).toHaveCount(1)
+})
+
+test('a failed page chunk shows a reload prompt instead of a blank app', async ({ page }) => {
+  await page.route('**/assets/WeekPage-*.js', r => r.abort())
+  await page.goto('#/')
+  await expect(page.getByTestId('reset-countdown')).toBeVisible()
+  await page.evaluate(() => { location.hash = '#/week' })
+  await expect(page.getByTestId('chunk-error')).toBeVisible()
+})
+
+test('silhouette game stops retrying when sprites cannot load', async ({ page }) => {
+  await page.route('https://cdn.worldofmiscrits.com/**', r => r.fulfill({ status: 404, body: '' }))
+  await page.goto('#/games/silhouette')
+  await expect(page.getByTestId('game-empty')).toBeVisible({ timeout: 10_000 })
+})
+
+test('cards have no interactive element nested inside a link', async ({ page }) => {
+  await page.goto('#/dex')
+  await expect(page.getByTestId('miscrit-tile').first()).toBeVisible()
+  expect(await page.locator('a button, a [role="button"]').count()).toBe(0)
+})
+
+test('compare and hunt use full width columns on phones', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 })
+  await page.addInitScript(() => localStorage.setItem('mc-hunt', JSON.stringify({ state: { ids: [1, 20] }, version: 0 })))
+  await page.goto('#/compare?ids=1,20,94')
+  const col = await page.locator('.cmp-col').first().boundingBox()
+  expect(col!.width).toBeGreaterThan(250)
+  await page.goto('#/hunt')
+  const panel = await page.locator('.panel').first().boundingBox()
+  expect(panel!.width).toBeGreaterThan(300)
+})

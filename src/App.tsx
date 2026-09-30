@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { DataProvider } from './data/DataProvider'
 import { Layout } from './components/Layout'
+import { ChunkErrorBoundary } from './components/ChunkErrorBoundary'
 import { NotFound } from './pages/NotFound'
 import { TodayPage } from './pages/TodayPage'
 import { translate } from './i18n'
@@ -34,6 +35,7 @@ export default function App() {
     >
       <HashRouter>
         <Layout>
+          <ChunkErrorBoundary lang={lang}>
           <Suspense fallback={<div className="container muted">{translate(lang, 'loading')}</div>}>
           <Routes>
             <Route path="/" element={<TodayPage />} />
@@ -57,6 +59,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
+          </ChunkErrorBoundary>
         </Layout>
       </HashRouter>
     </DataProvider>

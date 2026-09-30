@@ -2,7 +2,7 @@ import type { Lang } from '../i18n'
 
 const LANGS: Lang[] = ['ru', 'en']
 const obj = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' ? v as Record<string, unknown> : {})
-const numbers = (v: unknown): number[] => (Array.isArray(v) ? v.filter((x): x is number => typeof x === 'number') : [])
+const numbers = (v: unknown): number[] => (Array.isArray(v) ? v.filter((x): x is number => typeof x === 'number' && Number.isInteger(x) && x >= 0 && x <= 4096) : [])
 
 /** Persisted settings may come from an older version or be hand-edited: keep only valid values. */
 export function sanitizeSettings(v: unknown): { lang: Lang } {

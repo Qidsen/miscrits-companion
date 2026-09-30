@@ -14,3 +14,7 @@ test('sanitizeCollection keeps only number arrays', () => {
 test('translate falls back to en for unknown lang', () => {
   expect(translate('de' as never, 'loading')).toBe('Loading…')
 })
+
+test('sanitizeCollection drops out-of-range ids', () => {
+  expect(sanitizeCollection({ caught: [1, -1, 1e12, 4.5], favorites: [] })).toEqual({ caught: [1], favorites: [] })
+})

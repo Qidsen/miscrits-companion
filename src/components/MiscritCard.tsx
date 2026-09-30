@@ -58,13 +58,14 @@ export function MiscritCard({ m, size = 'md', showDays, day, region, highlighted
     )
   }
   const star = size !== 'xs' && (
-    <span role="button" tabIndex={0} className={`mcard-hunt${hunted ? ' on' : ''}`} title={t(hunted ? 'hunt.added' : 'hunt.add')} aria-pressed={hunted}
-      onClick={e => { e.preventDefault(); e.stopPropagation(); toggleHunt(m.id) }}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleHunt(m.id) } }}>{hunted ? '★' : '☆'}</span>
+    <button type="button" className={`mcard-hunt${hunted ? ' on' : ''}`} title={t(hunted ? 'hunt.added' : 'hunt.add')} aria-label={t(hunted ? 'hunt.added' : 'hunt.add')}
+      aria-pressed={hunted} onClick={() => toggleHunt(m.id)}>{hunted ? '★' : '☆'}</button>
   )
+  // the link and the hunt button are siblings: no interactive element nested inside a link
   return (
-    <Link to={`/m/${m.id}`} className={cls} style={style} title={m.names[0]} data-testid="miscrit-tile" onClick={onClick} {...hover}>
-      {body}{badge}{star}
-    </Link>
+    <div className={cls} style={style} {...hover}>
+      <Link to={`/m/${m.id}`} className="mcard-link" title={m.names[0]} data-testid="miscrit-tile" onClick={onClick}>{body}</Link>
+      {badge}{star}
+    </div>
   )
 }

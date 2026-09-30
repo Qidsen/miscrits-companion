@@ -50,3 +50,9 @@
 .mcard-hunt.on { color: var(--accent); text-shadow: 0 0 8px rgba(255, 181, 71, .7); }
 .mcard-sm .mcard-hunt { top: 3px; left: 4px; font-size: 14px; }
 @media (hover: none) { .mcard-hunt { opacity: .8; } }
+
+.mcard-link { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; color: inherit; border-radius: inherit; }
+.mcard-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mcard-sm .mcard-link { flex-direction: row; text-align: left; gap: 10px; align-items: center; }
+.mcard-xs .mcard-link { display: grid; place-items: center; width: 100%; height: 100%; }
+button.mcard-hunt { background: none; border: 0; padding: 0; }

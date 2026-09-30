@@ -24,16 +24,17 @@ export function MapPage() {
   const { regions, regionByName, markers, byId, miscrits, markersByMiscrit } = useData()
   const { region: param } = useParams()
   const [search] = useSearchParams()
+  const focus = search.get('focus')
   const { day: today } = useGameDay()
   // undefined = follow the live game day; null = any day
-  const [picked, setDay] = useState<number | null | undefined>(undefined)
+  // a focus link targets one marker: show any day so it is never filtered out
+  const [picked, setDay] = useState<number | null | undefined>(focus ? null : undefined)
   const day = picked === undefined ? today : picked
   const [rarities, setRarities] = useState<string[]>([])
   const [elements, setElements] = useState<string[]>([])
   const [hideCaught, setHideCaught] = useState(false)
   const [hoveredZone, setHoveredZone] = useState<string | null>(null)
   const [hoveredMiscrit, setHoveredMiscrit] = useState<number | null>(null)
-  const focus = search.get('focus')
   const [flyTo, setFlyTo] = useState<{ id: string; nonce: number } | null>(focus ? { id: focus, nonce: 0 } : null)
   const caught = useCollection(s => s.caught)
 

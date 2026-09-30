@@ -21,15 +21,23 @@ export function SilhouetteGame() {
   const [answer, setAnswer] = useState<number | null>(null)
   const [streak, setStreak] = useState(0)
   const [newRecord, setNewRecord] = useState(false)
+  const [fails, setFails] = useState(0)
 
   const next = useCallback((p = pool) => { setQ(silhouetteQuestion(p, rnd)); setAnswer(null); setNewRecord(false) }, [pool, rnd])
+  const onImgError = () => { setFails(f => f + 1); if (fails + 1 < 5) next() }
   const choose = (id: number) => {
     if (!q || answer !== null) return
     setAnswer(id)
     if (id === q.answer.id) { const s = streak + 1; setStreak(s); if (record('silhouette', s)) setNewRecord(true) }
     else setStreak(0)
   }
-  if (!q) return null
+  if (!q || fails >= 5) return (
+    <div className="container game">
+      <div className="game-top"><Link to="/games" className="btn">← {t('games.back')}</Link></div>
+      <div className="card panel" data-testid="game-empty"><p>{t('games.offline')}</p>
+        <button className="btn btn-primary" onClick={() => { setFails(0); next() }}>{t('games.retry')}</button></div>
+    </div>
+  )
   const done = answer !== null
   const right = answer === q.answer.id
 
@@ -45,7 +53,7 @@ export function SilhouetteGame() {
       </div>
       <div className="game-score"><span>🔥 {t('games.streak', { n: streak })}</span><span>🏆 {t('games.best', { n: best })}</span></div>
       <div className={`card sil-stage${done ? (right ? ' ok' : ' bad') : ''}`}>
-        <img key={q.answer.id} src={spriteUrl(q.answer.names[0])} alt="?" className={`sil-img${done ? ' revealed' : ''}`} onError={() => next()} draggable={false} />
+        <img key={q.answer.id} src={spriteUrl(q.answer.names[0])} alt="?" className={`sil-img${done ? ' revealed' : ''}`} onError={onImgError} onLoad={() => setFails(0)} draggable={false} />
         {done && <div className="sil-verdict">{right ? `✅ ${t('games.correct')}` : `❌ ${t('games.wrong', { name: q.answer.names[0] })}`}{newRecord && <b> 🏆 {t('games.newRecord')}</b>}</div>}
       </div>
       <div className="options">

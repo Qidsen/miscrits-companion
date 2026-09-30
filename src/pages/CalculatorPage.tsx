@@ -8,6 +8,7 @@ import { FORMULA } from '../domain/formulaConfig'
 import { STAT_KEYS, statsAt, withBuffs, withRelics, type Stats } from '../domain/stats'
 import { elementColor, elementGradient } from '../styles/elements'
 import { MiscritPicker } from '../components/MiscritPicker'
+import { LevelSlider } from '../components/LevelSlider'
 import { Sprite } from '../components/Sprite'
 import { ElementIcons } from '../components/ElementIcons'
 import { Panel } from '../components/Panel'
@@ -40,8 +41,7 @@ function Fighter({ title, side, onChange, buffs, setBuffs, stats }: {
             <div><Link to={`/m/${m.id}`}><h3>{m.names[0]}</h3></Link><ElementIcons element={m.element} /></div>
             <button className="btn" style={{ marginLeft: 'auto' }} onClick={() => onChange(null)} aria-label={t('pick.remove')}>✕</button>
           </div>
-          <label className="small">{t('pick.level', { n: side.level })}
-            <input className="range" type="range" min={1} max={FORMULA.maxLevel} value={side.level} onChange={e => onChange({ ...side, level: Number(e.target.value) })} /></label>
+          <LevelSlider value={side.level} onCommit={level => onChange({ ...side, level })} />
           {m.relicSet && <label className="chip"><input type="checkbox" checked={side.relics} onChange={e => onChange({ ...side, relics: e.target.checked })} /> {t('calc.relics')}</label>}
           {stats && <>
             <div className="tiny muted upper">{t('calc.statsAt', { n: side.level })}</div>

@@ -33,3 +33,8 @@ test('export/import', () => {
   expect(importCollection('{"caught":"x"}')).toBeNull()
   expect(importCollection('not json')).toBeNull()
 })
+
+test('import and encode reject ids outside the known range', () => {
+  expect(importCollection('{"caught":[2000000000,-5,99999,7]}')).toEqual({ caught: [7], favorites: [] })
+  expect(encodeIds([3, 50_000_000]).length).toBeLessThan(10)
+})

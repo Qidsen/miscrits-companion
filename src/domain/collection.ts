@@ -2,10 +2,13 @@ import type { Miscrit } from '../data/types'
 import { splitElement } from './miscrit'
 
 const MAX_CODE = 20_000
+/** Highest plausible miscrit id; anything above is garbage (keeps bitsets and links small). */
+export const MAX_ID = 4096
+const validId = (x: unknown): x is number => typeof x === 'number' && Number.isInteger(x) && x >= 0 && x <= MAX_ID
 
 /** Collection as a bitset (bit i = miscrit id i), base64url without padding — short enough for a link. */
 export function encodeIds(ids: number[]): string {
-  const valid = ids.filter(id => Number.isInteger(id) && id >= 0)
+  const valid = ids.filter(validId)
   if (!valid.length) return ''
   const bytes = new Uint8Array(Math.floor(Math.max(...valid) / 8) + 1)
   for (const id of valid) bytes[id >> 3] |= 1 << (id & 7)
@@ -14,7 +17,7 @@ export function encodeIds(ids: number[]): string {
   return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-export function decodeIds(s: string, maxId = 4096): number[] | null {
+export function decodeIds(s: string, maxId = MAX_ID): number[] | null {
   if (s.length > MAX_CODE || !/^[A-Za-z0-9_-]*$/.test(s)) return null
   if (!s) return []
   let bin: string
@@ -65,8 +68,7 @@ export function collectionStats(miscrits: Miscrit[], caught: Set<number>) {
   return { total: miscrits.length, caught: n, byElement, byRarity }
 }
 
-const numbers = (v: unknown): number[] | null =>
-  Array.isArray(v) && v.every(x => typeof x === 'number' && Number.isInteger(x)) ? v : null
+const numbers = (v: unknown): number[] | null => (Array.isArray(v) ? v.filter(validId) : null)
 
 export function exportCollection(caught: number[], favorites: number[]): string {
   return JSON.stringify({ version: 1, caught, favorites }, null, 2)

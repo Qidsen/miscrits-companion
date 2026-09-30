@@ -19,7 +19,7 @@ export function CollectionPage() {
   const [copied, setCopied] = useState(false)
   const [importError, setImportError] = useState(false)
   const file = useRef<HTMLInputElement>(null)
-  const link = `${location.origin}${location.pathname}#/c/${encodeIds(caught)}`
+  const link = useMemo(() => `${location.origin}${location.pathname}#/c/${encodeIds(caught)}`, [caught])
   const missing = useMemo(() => miscrits.filter(m => !caught.includes(m.id)), [miscrits, caught])
 
   const download = () => {

@@ -32,7 +32,7 @@ export function HuntPage() {
         </div>
       </div>
       {ids.length === 0 ? <Panel><div className="muted">{t('hunt.empty')}</div></Panel> : (
-        <div className="team-analysis" style={{ gridTemplateColumns: 'minmax(0, 1.4fr) minmax(0, 1fr)' }}>
+        <div className="hunt-layout">
           <Panel title={t('hunt.today')}>
             {route.length === 0 ? <div className="muted">{t('hunt.nothingToday')}</div> : (
               <div className="hunt-route">

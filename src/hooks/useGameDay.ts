@@ -1,19 +1,37 @@
 import { useEffect, useState } from 'react'
 import { gameDay, msUntilReset, nextReset } from '../domain/schedule'
 
-/** Current game day that flips exactly at the 03:00 Kyiv reset (and after the tab wakes up). */
+const CHECK_MS = 30_000
+
+/**
+ * Current game day that flips at the 03:00 Kyiv reset.
+ * A long setTimeout alone is not enough: timers freeze while the laptop sleeps, so we also
+ * re-check the wall clock periodically and when the tab regains focus.
+ */
 export function useGameDay(): { day: number; nextReset: Date } {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
+    const refresh = () => setNow(prev => {
+      const n = new Date()
+      return gameDay(n) === gameDay(prev) && nextReset(n).getTime() === nextReset(prev).getTime() ? prev : n
+    })
     const arm = () => {
       clearTimeout(timer)
-      timer = setTimeout(() => { setNow(new Date()); arm() }, msUntilReset(new Date()) + 50)
+      timer = setTimeout(() => { refresh(); arm() }, msUntilReset(new Date()) + 50)
     }
-    const onVisible = () => { if (document.visibilityState === 'visible') { setNow(new Date()); arm() } }
+    const wake = () => { refresh(); arm() }
     arm()
-    document.addEventListener('visibilitychange', onVisible)
-    return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', onVisible) }
+    const interval = setInterval(wake, CHECK_MS)
+    document.addEventListener('visibilitychange', wake)
+    window.addEventListener('focus', wake)
+    window.addEventListener('pageshow', wake)
+    return () => {
+      clearTimeout(timer); clearInterval(interval)
+      document.removeEventListener('visibilitychange', wake)
+      window.removeEventListener('focus', wake)
+      window.removeEventListener('pageshow', wake)
+    }
   }, [])
   return { day: gameDay(now), nextReset: nextReset(now) }
 }

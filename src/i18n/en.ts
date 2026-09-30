@@ -172,4 +172,9 @@ export const en = {
   'games.evolvesInto': "evolves into…",
   'games.memBest': "Best: {moves} moves",
   'day.pick': "Pick a day",
+  'error.chunk': "This page failed to load",
+  'error.chunkHint': "The site was probably updated. Reloading fixes it.",
+  'error.reload': "Reload",
+  'games.offline': "Can't load miscrit images right now. Check your connection.",
+  'games.retry': "Try again",
 } as const

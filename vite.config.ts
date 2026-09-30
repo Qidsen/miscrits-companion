@@ -25,10 +25,11 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/data\//],
         runtimeCaching: [
           { urlPattern: /\/data\/maps\/.*\.webp$/, handler: 'CacheFirst', options: { cacheName: 'maps', expiration: { maxEntries: 30 } } },
-          { urlPattern: /^https:\/\/cdn\.worldofmiscrits\.com\/.*/, handler: 'CacheFirst',
-            options: { cacheName: 'sprites', expiration: { maxEntries: 2000, maxAgeSeconds: 30 * 24 * 3600 }, cacheableResponse: { statuses: [0, 200] } } },
-          { urlPattern: /^https:\/\/worldofmiscrits\.com\/.*\.png$/, handler: 'CacheFirst',
-            options: { cacheName: 'icons', expiration: { maxEntries: 100, maxAgeSeconds: 30 * 24 * 3600 }, cacheableResponse: { statuses: [0, 200] } } },
+          // opaque (no-cors) images: revalidate so a transient CDN error is not pinned; keep the count low (opaque entries are quota-heavy)
+          { urlPattern: /^https:\/\/cdn\.worldofmiscrits\.com\/.*/, handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'sprites', expiration: { maxEntries: 400, maxAgeSeconds: 7 * 24 * 3600, purgeOnQuotaError: true }, cacheableResponse: { statuses: [0, 200] } } },
+          { urlPattern: /^https:\/\/worldofmiscrits\.com\/.*\.png$/, handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'icons', expiration: { maxEntries: 60, maxAgeSeconds: 7 * 24 * 3600, purgeOnQuotaError: true }, cacheableResponse: { statuses: [0, 200] } } },
           { urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/, handler: 'StaleWhileRevalidate', options: { cacheName: 'fonts' } },
         ],
       },

@@ -4,13 +4,13 @@ import type { Miscrit } from '../data/types'
 import { useData } from '../data/DataProvider'
 import { elementIconUrl } from '../data/images'
 import { useT } from '../i18n'
-import { FORMULA } from '../domain/formulaConfig'
 import { BASE_ELEMENTS } from '../domain/miscrit'
 import { statsAt } from '../domain/stats'
 import { controlSummary, decodeTeam, defenseWeakness, encodeTeam, offenseCoverage, type TeamSlot } from '../domain/team'
 import { elementGradient } from '../styles/elements'
 import { useTeams } from '../store/teams'
 import { MiscritPicker } from '../components/MiscritPicker'
+import { LevelSlider } from '../components/LevelSlider'
 import { MiscritAvatar } from '../components/MiscritAvatar'
 import { Sprite } from '../components/Sprite'
 import { ElementIcons } from '../components/ElementIcons'
@@ -52,8 +52,7 @@ export function TeamPage() {
               <div className="team-slot-art"><Sprite name={m.names[0]} size={120} eager /></div>
               <Link to={`/m/${m.id}`}><h3>{m.names[0]}</h3></Link>
               <div className="row" style={{ justifyContent: 'center', gap: 8 }}><RarityBadge rarity={m.rarity} /><ElementIcons element={m.element} /></div>
-              <label className="small">{t('pick.level', { n: s.level })}
-                <input className="range" type="range" min={1} max={FORMULA.maxLevel} value={s.level} onChange={e => setSlots(slots.map((x, j) => (j === i ? { ...x, level: Number(e.target.value) } : x)))} /></label>
+              <LevelSlider value={s.level} onCommit={lv => setSlots(slots.map((x, j) => (j === i ? { ...x, level: lv } : x)))} />
               <button className="btn" onClick={() => setSlots(slots.filter((_, j) => j !== i))}>✕ {t('pick.remove')}</button>
             </div>
           )

@@ -174,4 +174,9 @@ export const ru: Record<keyof typeof en, string> = {
   'games.evolvesInto': "эволюционирует в…",
   'games.memBest': "Рекорд: {moves} ходов",
   'day.pick': "Выбор дня",
+  'error.chunk': "Не удалось загрузить страницу",
+  'error.chunkHint': "Скорее всего, сайт обновился. Перезагрузка всё исправит.",
+  'error.reload': "Перезагрузить",
+  'games.offline': "Не получается загрузить картинки мискритов. Проверь интернет.",
+  'games.retry': "Попробовать снова",
 }
