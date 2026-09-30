@@ -21,7 +21,7 @@ export default async (req: Request): Promise<Response> => {
   const ids = (url.searchParams.get('ids') ?? '').split(',').map(Number).filter(n => Number.isInteger(n) && n > 0).slice(0, 200)
   const day = Number(url.searchParams.get('d'))
   if (!Number.isInteger(day) || day < 0 || day > 6) return new Response('bad day', { status: 400 })
-  if (!data || Date.now() - data.at > 600_000) data = { at: Date.now(), value: fetch(`${SITE}data/bot.json`).then(r => r.json()) }
+  if (!data || Date.now() - data.at > 600_000) data = { at: Date.now(), value: fetch(`${SITE}data/bot.json?t=${Math.floor(Date.now() / 600_000)}`).then(r => r.json()) /* bust the Pages CDN cache */ }
   const model = huntCardModel(await data.value, ids, day, SITE)
   const png = await new ImageResponse(huntCardTree(model) as never, { width: WIDTH, height: cardHeight(model), fonts: await loadFonts(url.origin), emoji: 'twemoji' }).arrayBuffer()
   // the URL already encodes ids + day + date, so the image can be cached hard

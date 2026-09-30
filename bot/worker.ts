@@ -18,8 +18,8 @@ let cache: { at: number; value: { data: DigestData; changelog: ChangeEntry[] } }
 async function siteData(site: string) {
   if (cache && Date.now() - cache.at < 600_000) return cache.value
   const [bot, changelog] = await Promise.all([
-    fetch(`${site}data/bot.json`).then(r => r.json() as Promise<BotData>),
-    fetch(`${site}data/changelog.json`).then(r => (r.ok ? r.json() as Promise<ChangeEntry[]> : [])).catch(() => [] as ChangeEntry[]),
+    fetch(`${site}data/bot.json?t=${Math.floor(Date.now() / 600_000)}`) /* bust the Pages CDN cache */.then(r => r.json() as Promise<BotData>),
+    fetch(`${site}data/changelog.json?t=${Math.floor(Date.now() / 600_000)}`).then(r => (r.ok ? r.json() as Promise<ChangeEntry[]> : [])).catch(() => [] as ChangeEntry[]),
   ])
   cache = { at: Date.now(), value: { data: expandBotData(bot), changelog } }
   return cache.value

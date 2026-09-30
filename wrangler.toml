@@ -10,6 +10,7 @@ crons = ["*/5 * * * *"]
 [vars]
 SITE_URL = "https://qidsen.github.io/miscrits-companion/"
 BOT_USERNAME = "miscrits_companion_bot"
+CARD_URL = "https://miscrits-card.netlify.app"
 
 # id is filled in by `wrangler kv namespace create STATE`
 [[kv_namespaces]]
