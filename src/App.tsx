@@ -16,6 +16,10 @@ import { CalculatorPage } from './pages/CalculatorPage'
 import { TeamPage } from './pages/TeamPage'
 import { ComparePage } from './pages/ComparePage'
 import { HuntPage } from './pages/HuntPage'
+import { GamesHub } from './pages/games/GamesHub'
+import { SilhouetteGame } from './pages/games/SilhouetteGame'
+import { MemoryGame } from './pages/games/MemoryGame'
+import { EvolutionGame } from './pages/games/EvolutionGame'
 import { translate } from './i18n'
 import { useSettings } from './store/settings'
 
@@ -44,6 +48,10 @@ export default function App() {
             <Route path="/team" element={<TeamPage />} />
             <Route path="/compare" element={<ComparePage />} />
             <Route path="/hunt" element={<HuntPage />} />
+            <Route path="/games" element={<GamesHub />} />
+            <Route path="/games/silhouette" element={<SilhouetteGame />} />
+            <Route path="/games/memory" element={<MemoryGame />} />
+            <Route path="/games/evolution" element={<EvolutionGame />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>

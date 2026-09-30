@@ -22,7 +22,9 @@
 .more-sheet-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .5); z-index: 1200; display: flex; align-items: flex-end; }
 .more-sheet { width: 100%; border-radius: 20px 20px 0 0; padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--glass-strong); }
 
-@media (max-width: 1180px) { .nav a { padding: 7px 8px; } .search-btn kbd { display: none; } }
+@media (max-width: 1380px) { .nav a { padding: 7px 8px; } .search-btn kbd { display: none; } }
+@media (max-width: 1300px) { .reset-label { display: none; } }
+.reset-label { white-space: nowrap; }
 @media (max-width: 1020px) { .nav .nav-icon { display: none; } }
 @media (max-width: 860px) {
   .nav { display: none; }
