@@ -43,3 +43,10 @@
 .day-dots.compact .day-dot { width: 8px; height: 8px; padding: 0; border-radius: 50%; }
 .day-dots.compact .day-dot.on { background: var(--ok); }
 
+
+.mcard-hunt { position: absolute; top: 6px; left: 8px; z-index: 2; font-size: 17px; line-height: 1; color: var(--text-3); opacity: 0; transition: opacity .15s, transform .15s, color .15s; cursor: pointer; }
+.mcard:hover .mcard-hunt, .mcard-hunt.on, .mcard-hunt:focus-visible { opacity: 1; }
+.mcard-hunt:hover { transform: scale(1.25); color: var(--accent); }
+.mcard-hunt.on { color: var(--accent); text-shadow: 0 0 8px rgba(255, 181, 71, .7); }
+.mcard-sm .mcard-hunt { top: 3px; left: 4px; font-size: 14px; }
+@media (hover: none) { .mcard-hunt { opacity: .8; } }

@@ -11,6 +11,11 @@ import { WeekPage } from './pages/WeekPage'
 import { RelicsPage } from './pages/RelicsPage'
 import { CollectionPage } from './pages/CollectionPage'
 import { FriendCollectionPage } from './pages/FriendCollectionPage'
+import { ElementsPage } from './pages/ElementsPage'
+import { CalculatorPage } from './pages/CalculatorPage'
+import { TeamPage } from './pages/TeamPage'
+import { ComparePage } from './pages/ComparePage'
+import { HuntPage } from './pages/HuntPage'
 import { translate } from './i18n'
 import { useSettings } from './store/settings'
 
@@ -34,6 +39,11 @@ export default function App() {
             <Route path="/relics" element={<RelicsPage />} />
             <Route path="/collection" element={<CollectionPage />} />
             <Route path="/c/:code" element={<FriendCollectionPage />} />
+            <Route path="/elements" element={<ElementsPage />} />
+            <Route path="/calc" element={<CalculatorPage />} />
+            <Route path="/team" element={<TeamPage />} />
+            <Route path="/compare" element={<ComparePage />} />
+            <Route path="/hunt" element={<HuntPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>

@@ -5,6 +5,7 @@ import { dayShort, regionLabel, useT } from '../i18n'
 import { nextAvailableDay } from '../domain/schedule'
 import { elementGradient, elementColor } from '../styles/elements'
 import { useCollection } from '../store/collection'
+import { useHunt } from '../store/hunt'
 import { useGameDay } from '../hooks/useGameDay'
 import { ElementIcons } from '../components/ElementIcons'
 import { RarityBadge } from '../components/RarityBadge'
@@ -29,6 +30,7 @@ function MiscritPage({ id }: { id?: string }) {
   const m = byId.get(Number(id))
   const [evo, setEvo] = useState(0)
   const { caught, favorites, toggleCaught, toggleFavorite } = useCollection()
+  const hunt = useHunt()
   if (!m) return <NotFound />
 
   const isCaught = caught.includes(m.id)
@@ -65,6 +67,7 @@ function MiscritPage({ id }: { id?: string }) {
           <div className="row">
             <button className={`btn${isCaught ? ' btn-primary' : ''}`} aria-pressed={isCaught} onClick={() => toggleCaught(m.id)} data-testid="toggle-caught">{isCaught ? `✓ ${t('m.caught')}` : t('m.catch')}</button>
             <button className="btn" aria-pressed={isFav} onClick={() => toggleFavorite(m.id)}>{isFav ? '★' : '☆'} {t('m.fav')}</button>
+            <button className="btn" aria-pressed={hunt.ids.includes(m.id)} onClick={() => hunt.toggle(m.id)}>🎯 {t(hunt.ids.includes(m.id) ? 'hunt.added' : 'hunt.add')}</button>
             <Link className="btn" to={`/compare?ids=${m.id}`}>⚖️ {t('m.compare')}</Link>
             <Link className="btn" to={`/calc?a=${m.id}.30`}>🧮 {t('m.openCalc')}</Link>
           </div>

@@ -5,6 +5,7 @@ import { useT, type I18nKey } from '../i18n'
 import { spawnDays } from '../domain/schedule'
 import { elementGradient } from '../styles/elements'
 import { useCollection } from '../store/collection'
+import { useHunt } from '../store/hunt'
 import { ElementIcons } from './ElementIcons'
 import { MiscritAvatar } from './MiscritAvatar'
 import { Sprite } from './Sprite'
@@ -24,6 +25,8 @@ export function MiscritCard({ m, size = 'md', showDays, day, region, highlighted
   const t = useT()
   const caught = useCollection(s => s.caught.includes(m.id))
   const toggleCaught = useCollection(s => s.toggleCaught)
+  const hunted = useHunt(s => s.ids.includes(m.id))
+  const toggleHunt = useHunt(s => s.toggle)
   const days = spawnDays(region ? m.spawns.filter(s => s.region === region) : m.spawns)
   const cls = `mcard mcard-${size} rarity-${m.rarity}${caught ? ' is-caught' : ''}${highlighted ? ' is-hl' : ''}${quickMark ? ' is-quick' : ''}`
   const style = { '--el': elementGradient(m.element) } as CSSProperties
@@ -54,9 +57,14 @@ export function MiscritCard({ m, size = 'md', showDays, day, region, highlighted
       </button>
     )
   }
+  const star = size !== 'xs' && (
+    <span role="button" tabIndex={0} className={`mcard-hunt${hunted ? ' on' : ''}`} title={t(hunted ? 'hunt.added' : 'hunt.add')} aria-pressed={hunted}
+      onClick={e => { e.preventDefault(); e.stopPropagation(); toggleHunt(m.id) }}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleHunt(m.id) } }}>{hunted ? '★' : '☆'}</span>
+  )
   return (
     <Link to={`/m/${m.id}`} className={cls} style={style} title={m.names[0]} data-testid="miscrit-tile" onClick={onClick} {...hover}>
-      {body}{badge}
+      {body}{badge}{star}
     </Link>
   )
 }
