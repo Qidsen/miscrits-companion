@@ -1,0 +1,24 @@
+.col-hero { display: grid; grid-template-columns: auto 1fr; gap: 28px; padding: 26px; margin-bottom: 18px; align-items: center;
+  background: radial-gradient(500px 260px at 0% 50%, rgba(255, 181, 71, .16), transparent 70%), var(--glass); }
+.col-hero h1 { margin-bottom: 14px; }
+.ring { position: relative; display: grid; place-items: center; }
+.ring svg { position: absolute; inset: 0; filter: drop-shadow(0 0 14px rgba(255, 138, 61, .35)); }
+.ring-text { position: relative; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.ring-text b { font-family: var(--font-head); font-size: 38px; }
+.ring-text span { font-size: 12px; color: var(--text-2); font-weight: 700; }
+.breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.breakdown h3 { font-size: 14px; color: var(--text-2); margin-bottom: 8px; }
+.bd-row { display: grid; grid-template-columns: 120px 1fr 64px; gap: 10px; align-items: center; margin-bottom: 7px; }
+.bd-label { display: flex; gap: 6px; align-items: center; font-weight: 700; font-size: 13px; }
+.bd-track { height: 9px; background: rgba(255, 255, 255, .06); border-radius: 5px; overflow: hidden; }
+.bd-fill { display: block; height: 100%; border-radius: 5px; transition: width .5s ease; }
+.bd-num { font-size: 12px; color: var(--text-2); font-weight: 800; text-align: right; }
+.col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.col-grid .panel { display: flex; flex-direction: column; gap: 10px; }
+.col-grid .panel-head { margin-bottom: 0; }
+.col-grid p { margin: 0; }
+.col-textarea { min-height: 120px; resize: vertical; font-family: var(--font); }
+.friend-counts { font-family: var(--font-head); font-size: 22px; margin-bottom: 10px; }
+.quick-banner { position: sticky; top: calc(var(--header-h) + 8px); z-index: 50; margin-bottom: 10px; padding: 10px 14px; border-radius: var(--radius-s);
+  background: rgba(90, 209, 122, .15); border: 1px solid var(--ok); color: var(--ok); font-weight: 800; display: flex; justify-content: space-between; gap: 10px; }
+@media (max-width: 860px) { .col-hero { grid-template-columns: 1fr; justify-items: center; } .breakdown, .col-grid { grid-template-columns: 1fr; } .bd-row { grid-template-columns: 100px 1fr 56px; } }

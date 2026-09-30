@@ -10,6 +10,7 @@ import { DayPicker } from '../components/DayPicker'
 import { MiscritCard } from '../components/MiscritCard'
 import { elementIconUrl } from '../data/images'
 import './DexPage.css'
+import './CollectionPage.css'
 
 const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter(x => x !== v) : [...list, v])
 
@@ -22,6 +23,7 @@ export function DexPage() {
   const set = (over: Partial<DexFilter>) => setParams(filterToParams({ ...f, ...over }), { replace: true })
   // The router applies URL updates in a transition, so a URL-controlled input lags and drops keys.
   const [q, setQ] = useState(f.q)
+  const [quick, setQuick] = useState(false)
   const caught = useCollection(s => s.caught)
   const favorites = useCollection(s => s.favorites)
   const result = useMemo(() => filterMiscrits(miscrits, paramsToFilter(params), { caught: new Set(caught), favorites: new Set(favorites) }),
@@ -58,13 +60,15 @@ export function DexPage() {
             {(['id', 'name', 'rarity', 'spd', 'hp'] as SortKey[]).map(s => <option key={s} value={s}>{t('dex.sort')}: {t(`dex.sort.${s}` as I18nKey)}</option>)}
           </select>
           <label className="chip"><input type="checkbox" checked={f.favorites} onChange={e => set({ favorites: e.target.checked })} /> {t('dex.favorites')}</label>
+          <button className="chip" aria-pressed={quick} onClick={() => setQuick(v => !v)} data-testid="quick-mark">✓ {t('col.quickMark')}</button>
           <button className="btn" onClick={() => { setQ(''); setParams(filterToParams(EMPTY_FILTER), { replace: true }) }}>{t('dex.reset')}</button>
         </div>
       </div>
+      {quick && <div className="quick-banner"><span>{t('col.quickHint')}</span><button className="btn" onClick={() => setQuick(false)}>✕</button></div>}
       <div className="muted dex-count" data-testid="dex-count">{t('dex.results', { n: result.length })}</div>
       {result.length === 0
         ? <div className="card dex-empty">{t('dex.empty')}</div>
-        : <div className="grid-cards">{result.map(m => <MiscritCard key={m.id} m={m} />)}</div>}
+        : <div className="grid-cards">{result.map(m => <MiscritCard key={m.id} m={m} quickMark={quick} />)}</div>}
     </div>
   )
 }
