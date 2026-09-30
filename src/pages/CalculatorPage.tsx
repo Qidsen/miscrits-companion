@@ -12,6 +12,8 @@ import { LevelSlider } from '../components/LevelSlider'
 import { Sprite } from '../components/Sprite'
 import { ElementIcons } from '../components/ElementIcons'
 import { Panel } from '../components/Panel'
+import { useCalibration } from '../store/calibration'
+import { CalibrationPanel } from './CalibrationPanel'
 import './tools.css'
 
 interface Side { id: number; level: number; relics: boolean }
@@ -91,16 +93,17 @@ export function CalculatorPage() {
     if (s.relics && m.relicSet) st = withRelics(st, m.relicSet.relicIds.map(id => relics.get(id)).filter((r): r is Relic => !!r).filter(r => r.level <= s.level))
     return { m, stats: withBuffs(st, buffs) }
   }
+  const applied = useCalibration(s => s.applied)
   const A = build(a, buffA), D = build(d, buffD)
   const rows = !A || !D ? [] : (() => {
-    return A.m.abilities.filter(isDamaging).map(ab => ({ ab, r: damage(ab, { element: A.m.element, stats: A.stats }, { element: D.m.element, stats: D.stats })! }))
+    return A.m.abilities.filter(isDamaging).map(ab => ({ ab, r: damage(ab, { element: A.m.element, stats: A.stats }, { element: D.m.element, stats: D.stats }, applied ?? undefined)! }))
       .sort((x, y) => y.r.avg - x.r.avg)
   })()
   const top = rows[0]?.r.max ?? 1
 
   return (
     <div className="container fade-in">
-      <div className="tool-head"><h1>🧮 {t('calc.title')}</h1><span className="badge-approx">{t('approx')}</span></div>
+      <div className="tool-head"><h1>🧮 {t('calc.title')}</h1><span className="row" style={{ gap: 8 }}>{applied && <span className="badge-approx cal-badge" data-testid="cal-badge">✓ {t('cal.badge', { n: applied.n })}</span>}<span className="badge-approx">{t('approx')}</span></span></div>
       <div className="calc-layout">
         <Fighter title={t('calc.attacker')} side={a} onChange={s => set('a', s)} buffs={buffA} setBuffs={setBuffA} stats={A?.stats ?? null} />
         <Panel className="calc-results" title={t('calc.dmg')} actions={a && d && <button className="btn" onClick={() => { const p = new URLSearchParams(params); p.set('a', fmtSide(d)); p.set('d', fmtSide(a)); setParams(p, { replace: true }); setBuffA(buffD); setBuffD(buffA) }}>⇄ {t('calc.swap')}</button>}>
@@ -123,6 +126,9 @@ export function CalculatorPage() {
               )}
         </Panel>
         <Fighter title={t('calc.defender')} side={d} onChange={s => set('d', s)} buffs={buffD} setBuffs={setBuffD} stats={D?.stats ?? null} />
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <CalibrationPanel attacker={A && a ? { m: A.m, level: a.level } : undefined} defender={D && d ? { m: D.m, level: d.level } : undefined} />
       </div>
     </div>
   )

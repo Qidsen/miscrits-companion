@@ -10,3 +10,7 @@ export const FORMULA = {
   damageScale: 1,
   variance: 0.1,
 } as const
+
+/** The tunable part of the formula (what calibration fits). */
+export interface FormulaParams { damageScale: number; strong: number; weak: number }
+export const DEFAULT_PARAMS: FormulaParams = { damageScale: FORMULA.damageScale, strong: FORMULA.strong, weak: FORMULA.weak }

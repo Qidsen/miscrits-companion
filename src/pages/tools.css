@@ -83,3 +83,14 @@
 .hunt-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; }
 .cmp-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 @media (max-width: 860px) { .hunt-layout { grid-template-columns: 1fr; } }
+
+.calib { display: flex; flex-direction: column; gap: 12px; }
+.calib p { margin: 0; }
+.calib-form { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: end; }
+.calib-form label { display: flex; flex-direction: column; gap: 4px; }
+.calib-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
+.calib-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: rgba(255, 255, 255, .03); border: 1px solid var(--line); }
+.calib-row .grow { flex: 1; }
+.calib-result { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: rgba(90, 209, 122, .08); border: 1px solid var(--ok); }
+.cal-badge { color: var(--ok); border-color: var(--ok); }
+@media (max-width: 760px) { .calib-form { grid-template-columns: 1fr 1fr; } }
