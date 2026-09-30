@@ -10,7 +10,8 @@
     "preview": "vite preview --port 4173",
     "test": "vitest run",
     "sync": "tsx scripts/sync/index.ts",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "bot:deploy": "wrangler deploy"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

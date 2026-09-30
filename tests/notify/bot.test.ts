@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import { expect, test } from 'vitest'
-import { EMPTY_STATE, decryptState, encryptState, shouldSendDaily, type BotState } from '../../scripts/notify/state'
+import { EMPTY_STATE, shouldSendDaily, type BotState } from '../../scripts/notify/state'
+import { decryptState, encryptState } from '../../scripts/notify/crypto'
 import { groupDigest, personalDigest, type DigestData } from '../../scripts/notify/digest'
 import { applyUpdate, type TgUpdate } from '../../scripts/notify/commands'
 import { encodeIds } from '../../src/domain/collection'

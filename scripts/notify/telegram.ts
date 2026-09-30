@@ -65,6 +65,6 @@ export class TelegramClient {
   }
 
   async setWebhook(url: string, secret: string) {
-    return (await this.call('setWebhook', { url, secret_token: secret, allowed_updates: ['message', 'my_chat_member'], drop_pending_updates: false })).data
+    return (await this.call('setWebhook', { url, secret_token: secret, allowed_updates: ['message', 'my_chat_member'], max_connections: 1, drop_pending_updates: false })).data
   }
 }

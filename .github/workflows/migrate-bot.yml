@@ -1,0 +1,32 @@
+name: Migrate bot subscribers to Cloudflare
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Import subscribers into the worker
+        env:
+          NOTIFY_KEY: ${{ secrets.NOTIFY_KEY }}
+          BOT_ADMIN_TOKEN: ${{ secrets.BOT_ADMIN_TOKEN }}
+        run: npx tsx scripts/bot/migrate.ts
+      - name: Remove the old encrypted state (now lives in Cloudflare KV)
+        run: |
+          if [ -f notify/state.enc ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git rm -q notify/state.enc
+            git commit -m "chore(bot): state moved to Cloudflare KV"
+            for i in 1 2 3; do git pull --rebase origin main && git push && break; sleep $((i * 5)); done
+          fi

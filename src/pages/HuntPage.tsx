@@ -46,7 +46,7 @@ export function HuntPage() {
             <input className="input" readOnly value={command} onFocus={e => e.target.select()} style={{ flex: 1, minWidth: 180 }} />
             <button className="btn" onClick={async () => { try { await navigator.clipboard.writeText(command); setCopied(true); setTimeout(() => setCopied(false), 1500) } catch { /* clipboard blocked */ } }}>{copied ? t('col.copied') : t('col.copy')}</button>
           </div>
-          <p className="tiny muted" style={{ marginBottom: 0 }}>{t('tg.note')}</p>
+          <p className="tiny muted" style={{ marginBottom: 0 }}>{t('tg.note2')}</p>
         </Panel>
       )}
       {ids.length === 0 ? <Panel><div className="muted">{t('hunt.empty')}</div></Panel> : (

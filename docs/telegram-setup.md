@@ -1,13 +1,22 @@
-# Telegram bot setup
+# Telegram bot (Cloudflare Workers)
 
-1. In Telegram open **@BotFather** → `/newbot` → pick a name and a username ending in `bot`.
-2. Save the token as a repo secret (never paste it in chat or commit it):
-   `gh secret set TELEGRAM_TOKEN -R Qidsen/miscrits-companion`
-3. Encryption key for the subscriber list (random 32 bytes):
-   `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))" | gh secret set NOTIFY_KEY -R Qidsen/miscrits-companion`
-   Keep a copy somewhere safe: losing it means losing the subscriber list (users just send /hunt again).
-4. Bot username (shown on the site): `gh variable set BOT_USERNAME --body your_bot -R Qidsen/miscrits-companion`
-5. Rebuild the site (push to main or run "Sync data and deploy") so the Hunt page shows the Telegram panel.
+The bot is a Cloudflare Worker (`bot/worker.ts`, config in `wrangler.toml`), free plan:
+Telegram calls `https://miscrits-bot.<account>.workers.dev/tg` (webhook) → replies are instant;
+a cron trigger every 5 minutes sends the daily card right after the 03:00 Kyiv reset.
+Subscribers live in Workers KV (`STATE` namespace, key `state`). The bot reads `bot.json`,
+`changelog.json` and the weekday cards (`data/cards/<day>.jpg`) from the GitHub Pages site.
 
-The bot runs in `.github/workflows/notify.yml` every 15 minutes. Commands: `/start`, `/hunt <code>`, `/today`, `/stop`;
-in a group: `/subscribe`, `/unsubscribe`, `/today` (or just add the bot to the group).
+## One-time setup
+1. `npx wrangler login`
+2. `npx wrangler kv namespace create STATE` → put the id into `wrangler.toml`
+3. `npm run bot:deploy`
+4. Secrets (Cloudflare): `npx wrangler secret put TELEGRAM_TOKEN` (from @BotFather),
+   `WEBHOOK_SECRET` and `ADMIN_TOKEN` (random strings). Keep `ADMIN_TOKEN` also as GitHub secret `BOT_ADMIN_TOKEN`.
+5. Register the webhook: `curl -X POST -H "X-Admin-Token: <ADMIN_TOKEN>" https://miscrits-bot.<account>.workers.dev/admin/set-webhook`
+6. In Telegram send the bot `/claim <ADMIN_TOKEN>` once → `/admin` shows subscribers.
+
+## Commands
+Private: `/start`, `/hunt <code>` (copied from the Hunt page), `/today`, `/stop`, owner: `/claim`, `/admin`.
+Groups: add the bot (or `/subscribe`), `/unsubscribe`, `/today`.
+
+Redeploy after code changes: `npm run bot:deploy`.

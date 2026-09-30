@@ -1,0 +1,17 @@
+name = "miscrits-bot"
+main = "bot/worker.ts"
+compatibility_date = "2026-09-01"
+workers_dev = true
+
+# 03:00 Kyiv is 00:00 or 01:00 UTC depending on DST; the worker itself checks the game date
+[triggers]
+crons = ["*/5 * * * *"]
+
+[vars]
+SITE_URL = "https://qidsen.github.io/miscrits-companion/"
+BOT_USERNAME = "miscrits_companion_bot"
+
+# id is filled in by `wrangler kv namespace create STATE`
+[[kv_namespaces]]
+binding = "STATE"
+id = "7c62fdb775314dbe8fdc474dd49257d8"
