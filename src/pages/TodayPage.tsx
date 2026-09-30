@@ -6,7 +6,7 @@ import { gameDay } from '../domain/schedule'
 import { exclusiveToday, groupAvailable, miscritOfTheDay, rareAvailable } from '../domain/today'
 import { useCollection } from '../store/collection'
 import { DayPicker } from '../components/DayPicker'
-import { MiscritTile } from '../components/MiscritTile'
+import { MiscritCard } from '../components/MiscritCard'
 import { MiscritAvatar } from '../components/MiscritAvatar'
 import { RarityBadge } from '../components/RarityBadge'
 import { Link } from 'react-router-dom'
@@ -50,14 +50,14 @@ export function TodayPage() {
       {rare.length > 0 && (
         <section className="card today-section highlight" data-testid="rare-today">
           <h2>{t('today.rareToday')}</h2>
-          <div className="grid-tiles">{rare.map(m => <MiscritTile key={m.id} m={m} />)}</div>
+          <div className="grid-cards">{rare.map(m => <MiscritCard key={m.id} m={m} />)}</div>
         </section>
       )}
 
       {exclusive.length > 0 && (
         <section className="card today-section highlight">
           <h2>{t('today.onlyToday')}</h2>
-          <div className="grid-tiles">{exclusive.map(m => <MiscritTile key={m.id} m={m} />)}</div>
+          <div className="grid-cards">{exclusive.map(m => <MiscritCard key={m.id} m={m} />)}</div>
         </section>
       )}
 
@@ -67,7 +67,7 @@ export function TodayPage() {
           {g.zones.map(z => (
             <div key={z.zone} className="today-zone">
               <h3 className="muted">{regionByName.get(g.region)?.zones[z.zone] ?? z.zone}</h3>
-              <div className="grid-tiles">{z.miscrits.map(m => <MiscritTile key={m.id} m={m} />)}</div>
+              <div className="grid-cards">{z.miscrits.map(m => <MiscritCard key={m.id} m={m} />)}</div>
             </div>
           ))}
         </section>

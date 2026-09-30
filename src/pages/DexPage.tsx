@@ -7,7 +7,7 @@ import { BASE_ELEMENTS, RARITY_ORDER } from '../domain/miscrit'
 import { gameDay } from '../domain/schedule'
 import { useCollection } from '../store/collection'
 import { DayPicker } from '../components/DayPicker'
-import { MiscritTile } from '../components/MiscritTile'
+import { MiscritCard } from '../components/MiscritCard'
 import { elementIconUrl } from '../data/images'
 import './DexPage.css'
 
@@ -63,7 +63,7 @@ export function DexPage() {
       <div className="muted dex-count" data-testid="dex-count">{t('dex.results', { n: result.length })}</div>
       {result.length === 0
         ? <div className="card dex-empty">{t('dex.empty')}</div>
-        : <div className="grid-tiles">{result.map(m => <MiscritTile key={m.id} m={m} />)}</div>}
+        : <div className="grid-cards">{result.map(m => <MiscritCard key={m.id} m={m} />)}</div>}
     </div>
   )
 }

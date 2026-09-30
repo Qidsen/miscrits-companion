@@ -1,0 +1,45 @@
+.mcard { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; border-radius: var(--radius);
+  background: var(--el), var(--bg-2); border: 1px solid var(--line); cursor: pointer; overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; font: inherit; color: inherit; padding: 0; }
+.mcard::before { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(120% 80% at 50% 0%, rgba(255, 255, 255, .08), transparent 60%); }
+.mcard:hover, .mcard.is-hl { transform: translateY(-3px); border-color: var(--r); box-shadow: 0 8px 24px rgba(0, 0, 0, .4), 0 0 0 1px var(--r), 0 0 22px -6px var(--r); }
+.mcard.rarity-Legendary, .mcard.rarity-Exotic { border-color: color-mix(in srgb, var(--r) 55%, var(--line)); }
+.mcard.rarity-Legendary { box-shadow: 0 0 24px -10px var(--r); }
+.mcard.is-caught .mcard-art { opacity: .55; filter: saturate(.6); }
+.mcard-art { position: relative; display: grid; place-items: center; width: 100%; padding: 12px 8px 0; }
+.mcard-art::after { content: ''; position: absolute; bottom: 4px; left: 50%; width: 55%; height: 10px; transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(0, 0, 0, .45), transparent); }
+.mcard-art .sprite { position: relative; z-index: 1; transition: transform .25s ease; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .4)); }
+.mcard:hover .mcard-art .sprite { transform: scale(1.06) translateY(-2px); }
+.mcard-body { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 10px 12px; width: 100%; }
+.mcard-name { font-weight: 800; font-size: 14px; line-height: 1.2; }
+.mcard-meta { display: flex; gap: 6px; align-items: center; justify-content: center; }
+.mcard-rarity { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--r); }
+.mcard-caught { position: absolute; top: 8px; right: 8px; z-index: 2; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ok); color: #06210f; font-weight: 900; font-size: 13px; box-shadow: 0 2px 6px rgba(0, 0, 0, .4); }
+.mcard.is-quick { outline: 2px dashed transparent; }
+.mcard.is-quick:hover { outline-color: var(--ok); }
+
+.mcard-lg .mcard-name { font-size: 18px; font-family: var(--font-head); }
+.mcard-lg { min-width: 210px; }
+.mcard-lg .mcard-art { padding-top: 18px; }
+
+.mcard-sm { flex-direction: row; text-align: left; gap: 10px; padding: 8px; align-items: center; }
+.mcard-sm .mcard-art { width: auto; padding: 0; }
+.mcard-sm .mcard-art::after { display: none; }
+.mcard-sm .mcard-body { align-items: flex-start; padding: 0; gap: 2px; min-width: 0; }
+.mcard-sm .mcard-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.mcard-sm .mcard-meta { justify-content: flex-start; }
+.mcard-sm .mcard-caught { top: 4px; right: 4px; width: 18px; height: 18px; font-size: 11px; }
+
+.mcard-xs { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; padding: 0; }
+.mcard-xs .mcard-caught { top: -2px; right: -2px; width: 16px; height: 16px; font-size: 10px; }
+
+.day-dots { display: inline-flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.day-dot { font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 5px; background: rgba(255, 255, 255, .06); color: var(--text-3); }
+.day-dot.on { background: color-mix(in srgb, var(--ok) 25%, transparent); color: var(--ok); }
+.day-dot.today { outline: 1.5px solid var(--accent); outline-offset: -1px; }
+.day-dots.compact .day-dot { width: 8px; height: 8px; padding: 0; border-radius: 50%; }
+.day-dots.compact .day-dot.on { background: var(--ok); }
+

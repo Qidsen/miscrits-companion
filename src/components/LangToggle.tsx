@@ -1,5 +1,7 @@
 import { useSettings } from '../store/settings'
+import { useT } from '../i18n'
 export function LangToggle() {
   const { lang, setLang } = useSettings()
-  return <button className="btn" onClick={() => setLang(lang === 'ru' ? 'en' : 'ru')} aria-label="language">{lang === 'ru' ? 'EN' : 'RU'}</button>
+  const t = useT()
+  return <button className="btn" onClick={() => setLang(lang === 'ru' ? 'en' : 'ru')} aria-label={t('lang.switch')}>{lang === 'ru' ? 'EN' : 'RU'}</button>
 }
