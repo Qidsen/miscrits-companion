@@ -5,7 +5,7 @@ import type { DigestData } from '../scripts/notify/digest'
 import { EMPTY_STATE, type BotState } from '../scripts/notify/state'
 import { TelegramClient } from '../scripts/notify/telegram'
 import { gameDay } from '../src/domain/schedule'
-import { handleUpdate, importState, runDaily, type BotDeps } from './handlers'
+import { handleUpdate, importState, linkStatus, runDaily, syncHunt, type BotDeps } from './handlers'
 
 interface Env {
   STATE: KVNamespace
@@ -39,10 +39,26 @@ function deps(env: Env): BotDeps {
 
 const safeEqual = (a: string | null, b: string) => !!a && a.length === b.length && [...a].reduce((acc, c, i) => acc | (c.charCodeAt(0) ^ b.charCodeAt(i)), 0) === 0
 
+// the site (GitHub Pages) and local dev may call the /link endpoints from the browser
+const ALLOWED = ['https://qidsen.github.io', 'http://localhost:5173', 'http://localhost:4173']
+const cors = (req: Request): Record<string, string> => {
+  const o = req.headers.get('Origin') ?? ''
+  return ALLOWED.includes(o) ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'content-type', 'Vary': 'Origin' } : {}
+}
+
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
-    const { pathname } = new URL(req.url)
+    const url = new URL(req.url)
+    const { pathname } = url
     if (pathname === '/health') return new Response('ok')
+    if (pathname.startsWith('/link/')) {
+      if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) })
+      if (req.method === 'GET' && pathname === '/link/status') return Response.json(await linkStatus(deps(env), url.searchParams.get('token') ?? ''), { headers: cors(req) })
+      if (req.method === 'POST' && pathname === '/link/sync') {
+        const body = await req.json().catch(() => ({})) as { token?: string; hunt?: unknown[] }
+        return Response.json(await syncHunt(deps(env), String(body.token ?? ''), Array.isArray(body.hunt) ? body.hunt : []), { headers: cors(req) })
+      }
+    }
     if (req.method === 'POST' && pathname === '/tg') {
       // only Telegram knows the secret passed to setWebhook
       if (!safeEqual(req.headers.get('X-Telegram-Bot-Api-Secret-Token'), env.WEBHOOK_SECRET)) return new Response('forbidden', { status: 403 })

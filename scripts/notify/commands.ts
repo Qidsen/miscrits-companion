@@ -10,7 +10,11 @@ export interface TgUpdate {
   my_chat_member?: { chat: TgChat; new_chat_member: { status: string } }
 }
 export type Reply = OutMsg
-interface Ctx { data: DigestData; now: Date; siteUrl: string; botName: string; adminToken?: string; cardUrl?: string }
+interface Ctx {
+  data: DigestData; now: Date; siteUrl: string; botName: string; adminToken?: string; cardUrl?: string
+  /** sha256 of the /start payload, computed by the caller (hashing is async, this reducer is not) */
+  linkKey?: string
+}
 
 const MAX_SUBS = 500
 const isGroup = (c: TgChat) => c.type === 'group' || c.type === 'supergroup'
@@ -72,6 +76,20 @@ export function applyUpdate(s: BotState, u: TgUpdate, ctx: Ctx): { state: BotSta
   }
 
   const hunt = () => state.subs.find(x => x.chatId === chatId)?.hunt ?? []
+  if (cmd === '/start' && args[0] && /^[a-f0-9]{32}$/.test(args[0]) && ctx.linkKey) {
+    // deep link from the site's "Connect Telegram" button: t.me/<bot>?start=<token>
+    const existing = state.subs.find(x => x.chatId === chatId)
+    const subs = existing ? state.subs : [...state.subs, { chatId, name: (msg.from?.first_name ?? '').slice(0, 40), hunt: [] }]
+    if (!existing && subs.length > MAX_SUBS) { replies.push({ chatId, text: '⚠️ Сейчас слишком много подписчиков, попробуй позже.' }); return { state, replies } }
+    state = { ...state, subs, links: { ...state.links, [ctx.linkKey]: chatId } }
+    replies.push({ chatId, text: '✅ <b>Сайт подключён!</b> Список охоты с сайта теперь обновляется у меня сам — команды /hunt больше не нужны.\n\nКаждый день в 03:00 по Киеву пришлю твою карточку охоты. /today — прямо сейчас.' })
+    return { state, replies }
+  }
+  if (cmd === '/unlink') {
+    state = { ...state, links: Object.fromEntries(Object.entries(state.links).filter(([, id]) => id !== chatId)) }
+    replies.push({ chatId, text: '🔌 Сайт отключён. Список охоты остался прежним; подключить снова — кнопкой в «Охоте» на сайте.' })
+    return { state, replies }
+  }
   if (cmd === '/hunt') {
     const ids = args[0] ? decodeIds(args[0])?.filter(id => known.has(id)) : null
     if (!ids || !ids.length) {

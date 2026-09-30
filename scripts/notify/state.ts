@@ -7,8 +7,10 @@ export interface BotState {
   sent: { date: string; ids: number[] } | null
   /** chat id allowed to use /admin (set by /claim) */
   owner: number | null
+  /** sha256(site link token) → chat id; lets the site push the hunt list without /hunt codes */
+  links: Record<string, number>
 }
-export const EMPTY_STATE: BotState = { v: 1, offset: 0, lastDaily: null, subs: [], groups: [], lastNewsDate: null, sent: null, owner: null }
+export const EMPTY_STATE: BotState = { v: 1, offset: 0, lastDaily: null, subs: [], groups: [], lastNewsDate: null, sent: null, owner: null, links: {} }
 
 /** Daily digest is due until every current subscriber and group got today's message. */
 export function dailyTargets(s: BotState, now: Date): { users: number[]; groups: number[] } {

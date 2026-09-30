@@ -3,12 +3,14 @@ import { Header } from './Header'
 import { Footer } from './Footer'
 import { SearchPalette } from './SearchPalette'
 import { BottomNav } from './BottomNav'
+import { useTelegramSync } from '../hooks/useTelegramSync'
 
 const isTyping = (el: EventTarget | null) =>
   el instanceof HTMLElement && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable)
 
 export function Layout({ children }: { children: ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false)
+  useTelegramSync()
   // layout effect: hotkeys are live before the first paint, so a visible UI always responds
   useLayoutEffect(() => {
     const onKey = (e: KeyboardEvent) => {
