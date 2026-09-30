@@ -1,0 +1,21 @@
+.miscrit-hero { display: grid; grid-template-columns: 240px 1fr; gap: 20px; padding: 20px; margin-bottom: 16px; border-top: 3px solid var(--r); }
+.miscrit-sprite { display: grid; place-items: center; background: radial-gradient(circle, var(--bg-3), transparent 70%); border-radius: var(--radius); min-height: 200px; }
+.miscrit-sprite img { max-height: 220px; }
+.miscrit-info { display: flex; flex-direction: column; gap: 10px; }
+.miscrit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.miscrit-block { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.stat-bars { display: flex; flex-direction: column; gap: 6px; }
+.stat-row { display: grid; grid-template-columns: 40px 1fr 72px; gap: 8px; align-items: center; }
+.stat-track { height: 8px; background: var(--bg-3); border-radius: 4px; overflow: hidden; }
+.stat-fill { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); }
+.spawn { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.spawn-days { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.spawn-day { font-size: 12px; padding: 2px 7px; border-radius: 6px; background: var(--bg-3); color: var(--text-3); }
+.spawn-day.on { background: color-mix(in srgb, var(--ok) 22%, transparent); color: var(--ok); }
+.miscrit-minimap { height: 220px; border-radius: var(--radius); overflow: hidden; }
+.relics { display: grid; gap: 10px; }
+.relic { display: flex; gap: 10px; align-items: flex-start; }
+.abilities { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+.ability { padding: 10px; background: var(--bg-3); border-radius: var(--radius-s); display: flex; flex-direction: column; gap: 4px; }
+.ability-head { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 640px) { .miscrit-hero { grid-template-columns: 1fr; } }

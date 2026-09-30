@@ -6,6 +6,7 @@ import { NotFound } from './pages/NotFound'
 import { TodayPage } from './pages/TodayPage'
 import { DexPage } from './pages/DexPage'
 import { MapPage } from './pages/MapPage'
+import { MiscritPage } from './pages/MiscritPage'
 import { translate } from './i18n'
 import { useSettings } from './store/settings'
 
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/dex" element={<DexPage />} />
             <Route path="/map" element={<MapPage />} />
             <Route path="/map/:region" element={<MapPage />} />
+            <Route path="/m/:id" element={<MiscritPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
