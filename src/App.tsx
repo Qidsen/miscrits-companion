@@ -1,27 +1,28 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { DataProvider } from './data/DataProvider'
 import { Layout } from './components/Layout'
 import { NotFound } from './pages/NotFound'
 import { TodayPage } from './pages/TodayPage'
-import { DexPage } from './pages/DexPage'
-import { MapPage } from './pages/MapPage'
-import { MiscritRoute } from './pages/MiscritPage'
-import { WeekPage } from './pages/WeekPage'
-import { RelicsPage } from './pages/RelicsPage'
-import { CollectionPage } from './pages/CollectionPage'
-import { FriendCollectionPage } from './pages/FriendCollectionPage'
-import { ElementsPage } from './pages/ElementsPage'
-import { CalculatorPage } from './pages/CalculatorPage'
-import { TeamPage } from './pages/TeamPage'
-import { ComparePage } from './pages/ComparePage'
-import { HuntPage } from './pages/HuntPage'
-import { GamesHub } from './pages/games/GamesHub'
-import { SilhouetteGame } from './pages/games/SilhouetteGame'
-import { MemoryGame } from './pages/games/MemoryGame'
-import { EvolutionGame } from './pages/games/EvolutionGame'
 import { translate } from './i18n'
 import { useSettings } from './store/settings'
+
+const DexPage = lazy(() => import('./pages/DexPage').then(m => ({ default: m.DexPage })))
+const MapPage = lazy(() => import('./pages/MapPage').then(m => ({ default: m.MapPage })))
+const MiscritRoute = lazy(() => import('./pages/MiscritPage').then(m => ({ default: m.MiscritRoute })))
+const WeekPage = lazy(() => import('./pages/WeekPage').then(m => ({ default: m.WeekPage })))
+const RelicsPage = lazy(() => import('./pages/RelicsPage').then(m => ({ default: m.RelicsPage })))
+const CollectionPage = lazy(() => import('./pages/CollectionPage').then(m => ({ default: m.CollectionPage })))
+const FriendCollectionPage = lazy(() => import('./pages/FriendCollectionPage').then(m => ({ default: m.FriendCollectionPage })))
+const ElementsPage = lazy(() => import('./pages/ElementsPage').then(m => ({ default: m.ElementsPage })))
+const CalculatorPage = lazy(() => import('./pages/CalculatorPage').then(m => ({ default: m.CalculatorPage })))
+const TeamPage = lazy(() => import('./pages/TeamPage').then(m => ({ default: m.TeamPage })))
+const ComparePage = lazy(() => import('./pages/ComparePage').then(m => ({ default: m.ComparePage })))
+const HuntPage = lazy(() => import('./pages/HuntPage').then(m => ({ default: m.HuntPage })))
+const GamesHub = lazy(() => import('./pages/games/GamesHub').then(m => ({ default: m.GamesHub })))
+const SilhouetteGame = lazy(() => import('./pages/games/SilhouetteGame').then(m => ({ default: m.SilhouetteGame })))
+const MemoryGame = lazy(() => import('./pages/games/MemoryGame').then(m => ({ default: m.MemoryGame })))
+const EvolutionGame = lazy(() => import('./pages/games/EvolutionGame').then(m => ({ default: m.EvolutionGame })))
 
 export default function App() {
   const lang = useSettings(s => s.lang)
@@ -33,6 +34,7 @@ export default function App() {
     >
       <HashRouter>
         <Layout>
+          <Suspense fallback={<div className="container muted">{translate(lang, 'loading')}</div>}>
           <Routes>
             <Route path="/" element={<TodayPage />} />
             <Route path="/dex" element={<DexPage />} />
@@ -54,6 +56,7 @@ export default function App() {
             <Route path="/games/evolution" element={<EvolutionGame />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </Layout>
       </HashRouter>
     </DataProvider>
