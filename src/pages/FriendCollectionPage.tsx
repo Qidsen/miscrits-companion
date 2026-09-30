@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useData } from '../data/DataProvider'
 import { useT } from '../i18n'
 import { collectionStats, decodeIds } from '../domain/collection'
@@ -13,6 +13,8 @@ import './CollectionPage.css'
 export function FriendCollectionPage() {
   const t = useT()
   const { code = '' } = useParams()
+  const [params] = useSearchParams()
+  const friendName = (params.get('n') ?? '').slice(0, 24)
   const { miscrits, byId } = useData()
   const mine = useCollection(s => s.caught)
   const theirs = useMemo(() => decodeIds(code)?.filter(id => byId.has(id)) ?? null, [code, byId])
@@ -30,7 +32,7 @@ export function FriendCollectionPage() {
       <section className="card col-hero">
         <ProgressRing value={stats.caught} total={stats.total} label={t('col.caught')} />
         <div className="col-hero-main">
-          <h1>👥 {t('friend.title')}</h1>
+          <h1>👥 {friendName || t('friend.title')}</h1>
           <div className="friend-counts"><span data-testid="friend-caught-count">{stats.caught}</span> / {stats.total}</div>
           <StatsBreakdown stats={stats} />
         </div>

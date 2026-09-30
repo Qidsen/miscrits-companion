@@ -3,6 +3,7 @@ import { useData } from '../data/DataProvider'
 import { useT } from '../i18n'
 import { collectionStats, encodeIds, exportCollection, importCollection, parseNameList } from '../domain/collection'
 import { useCollection } from '../store/collection'
+import { useTournament } from '../store/tournament'
 import { ProgressRing } from '../components/ProgressRing'
 import { StatsBreakdown } from '../components/StatsBreakdown'
 import { MiscritCard } from '../components/MiscritCard'
@@ -19,7 +20,8 @@ export function CollectionPage() {
   const [copied, setCopied] = useState(false)
   const [importError, setImportError] = useState(false)
   const file = useRef<HTMLInputElement>(null)
-  const link = useMemo(() => `${location.origin}${location.pathname}#/c/${encodeIds(caught)}`, [caught])
+  const myName = useTournament(s => s.name.trim())
+  const link = useMemo(() => `${location.origin}${location.pathname}#/c/${encodeIds(caught)}${myName ? `?n=${encodeURIComponent(myName)}` : ''}`, [caught, myName])
   const missing = useMemo(() => miscrits.filter(m => !caught.includes(m.id)), [miscrits, caught])
 
   const download = () => {

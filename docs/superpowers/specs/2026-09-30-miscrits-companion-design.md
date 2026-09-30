@@ -232,6 +232,6 @@ Constraint: the site stays static (GitHub Pages); scheduled work runs in GitHub 
 
 ### 13.4 Tournament
 - Daily challenge: 10 questions (6 silhouette, 4 evolution) generated from a seed derived from the game date — identical for everyone that day. One scored attempt per day per browser.
-- Score = 100 × correct + time bonus max(0, 300 − seconds).
+- Score = 100 × correct + speed bonus max(0, 99 − ⌊seconds / 3⌋) (speed never outweighs a correct answer).
 - Result link `#/r/<code>` encodes {date, name, correct, ms} plus a checksum; tampered codes are rejected. Opening a friend's link adds it to the local board.
 - Page `#/tournament`: today's challenge, share link, today's leaderboard and all-time totals (local), plus a friends' collections table built from collection share links (`#/c/<code>?n=<name>`).

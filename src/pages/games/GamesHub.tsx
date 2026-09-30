@@ -11,6 +11,7 @@ export function GamesHub() {
   const scores = useScores()
   const pick = (i: number) => miscrits[(i * 97) % miscrits.length].names[0]
   const games = [
+    { to: '/tournament', title: t('tour.title'), desc: t('tour.subtitle'), best: '', art: <div className="hub-evo"><span style={{ fontSize: 80 }}>🏅</span></div>, cls: 'g-tour' },
     { to: '/games/silhouette', title: t('games.sil.title'), desc: t('games.sil.desc'), best: t('games.best', { n: scores.silhouette }), art: <Sprite name={pick(3)} size={130} className="sil-dark" />, cls: 'g-sil' },
     { to: '/games/memory', title: t('games.mem.title'), desc: t('games.mem.desc'), best: scores.memory ? t('games.memBest', { moves: scores.memory.moves }) : '—', art: <div className="hub-mem">{[5, 9, 13, 17].map(i => <Sprite key={i} name={pick(i)} size={56} />)}</div>, cls: 'g-mem' },
     { to: '/games/evolution', title: t('games.evo.title'), desc: t('games.evo.desc'), best: t('games.best', { n: scores.evolution }), art: <div className="hub-evo"><Sprite name={pick(21)} size={80} /><span>→</span><span className="hub-q">?</span></div>, cls: 'g-evo' },
@@ -24,7 +25,7 @@ export function GamesHub() {
             <div className="game-art">{g.art}</div>
             <h2>{g.title}</h2>
             <p className="muted">{g.desc}</p>
-            <div className="game-foot"><span className="game-best">🏆 {g.best}</span><span className="btn btn-primary">{t('games.play')} →</span></div>
+            <div className="game-foot"><span className="game-best">{g.best && `🏆 ${g.best}`}</span><span className="btn btn-primary">{t('games.play')} →</span></div>
           </Link>
         ))}
       </div>

@@ -53,3 +53,17 @@
   .mem-front .avatar { width: 52px !important; height: 52px !important; }
   .mem-front .tiny { display: none; }
 }
+.tour-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.tour-today label { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.tour-play { justify-content: center; padding: 14px; font-size: 17px; width: 100%; }
+.tour-mine { display: flex; flex-direction: column; gap: 6px; align-items: center; text-align: center; }
+.big-score { font-family: var(--font-head); font-size: 54px; font-weight: 800; line-height: 1;
+  background: linear-gradient(135deg, #ffe08a, #ff8a3d); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.board li { display: grid; grid-template-columns: 32px 1fr auto auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: rgba(255, 255, 255, .03); border: 1px solid var(--line); }
+.board li.me { border-color: var(--accent); background: rgba(255, 181, 71, .08); }
+.board-pos { font-weight: 900; text-align: center; }
+.board-name { font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.challenge-progress { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .06); overflow: hidden; margin-bottom: 12px; }
+.challenge-progress span { display: block; height: 100%; background: linear-gradient(90deg, #ffd84a, #ff8a3d); transition: width .3s; }
+.g-tour { background: radial-gradient(400px 200px at 50% 0%, rgba(255, 181, 71, .32), transparent), var(--glass); }
