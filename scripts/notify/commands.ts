@@ -10,7 +10,7 @@ export interface TgUpdate {
   my_chat_member?: { chat: TgChat; new_chat_member: { status: string } }
 }
 export type Reply = OutMsg
-interface Ctx { data: DigestData; now: Date; siteUrl: string; botName: string; adminToken?: string }
+interface Ctx { data: DigestData; now: Date; siteUrl: string; botName: string; adminToken?: string; cardUrl?: string }
 
 const MAX_SUBS = 500
 const isGroup = (c: TgChat) => c.type === 'group' || c.type === 'supergroup'
@@ -85,9 +85,9 @@ export function applyUpdate(s: BotState, u: TgUpdate, ctx: Ctx): { state: BotSta
     }
     state = { ...state, subs: [...others, { chatId, name: (msg.from?.first_name ?? '').slice(0, 40), hunt: ids }] }
     replies.push({ chatId, text: `✅ Готово! В списке охоты: <b>${ids.length}</b>. Карточка дня — каждый день в 03:00 по Киеву. Вот что сегодня:` })
-    replies.push(...personalMessages(chatId, ctx.data, ids, ctx.now, ctx.siteUrl))
+    replies.push(...personalMessages(chatId, ctx.data, ids, ctx.now, ctx.siteUrl, ctx.cardUrl))
   } else if (cmd === '/today') {
-    replies.push(...personalMessages(chatId, ctx.data, hunt(), ctx.now, ctx.siteUrl))
+    replies.push(...personalMessages(chatId, ctx.data, hunt(), ctx.now, ctx.siteUrl, ctx.cardUrl))
   } else if (cmd === '/stop') {
     state = { ...state, subs: state.subs.filter(x => x.chatId !== chatId) }
     replies.push({ chatId, text: '👋 Отписал. Вернуться — снова отправь /hunt …' })

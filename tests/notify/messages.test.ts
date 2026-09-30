@@ -55,3 +55,18 @@ test('/today answers with the visual digest; /claim + /admin for the owner only'
   const admin = applyUpdate(r.state, pm(9, '/admin', 15), ctx).replies[0].text!
   expect(admin).toContain('Ann'); expect(admin).toMatch(/1/)
 })
+
+test('with a card renderer: one personalised picture of today\'s hunted miscrits + map buttons', () => {
+  const withMarker = { ...data, miscrits: data.miscrits.map(m => (m.id === 1 ? { ...m, marker: ['Forest', 'mk1'] } : m)) as typeof data.miscrits }
+  const msgs = personalMessages(5, withMarker, [1, 3, 2], WED, SITE, 'https://card.test')
+  expect(msgs).toHaveLength(1)
+  expect(msgs[0].photo).toBe('https://card.test/api/hunt?ids=1,2&d=3&v=2026-09-30')
+  const urls = msgs[0].buttons!.flat().map(b => b.url)
+  expect(urls).toContain(`${SITE}#/map/Forest?focus=mk1`) // Flue has a marker
+  expect(urls).toContain(`${SITE}#/m/2`) // Aquarion has none → its page
+})
+test('with a card renderer but nobody hunted today: the day card, not an empty picture', () => {
+  const msgs = personalMessages(5, data, [3], WED, SITE, 'https://card.test')
+  expect(msgs).toHaveLength(1)
+  expect(msgs[0].photo).toContain('/data/cards/3.jpg')
+})

@@ -93,11 +93,28 @@ function cutCaption(text: string, siteUrl: string) {
   return `${out.join('\n')}\n… полный список: ${e(siteUrl)}`
 }
 
-export function personalMessages(chatId: number, d: DigestData, hunt: number[], now: Date, siteUrl: string): OutMsg[] {
+/** Where a map button should lead: the exact marker when we know it, otherwise the miscrit page. */
+const mapLink = (m: Miscrit, siteUrl: string) => {
+  const mk = (m as Miscrit & { marker?: [string, string] | null }).marker
+  return mk ? `${siteUrl}#/map/${encodeURIComponent(mk[0])}?focus=${mk[1]}` : `${siteUrl}#/m/${m.id}`
+}
+
+export function personalMessages(chatId: number, d: DigestData, hunt: number[], now: Date, siteUrl: string, cardBase?: string): OutMsg[] {
   const set = new Set(hunt)
   const today = groupAvailable(d.miscrits.filter(m => set.has(m.id)), gameDay(now))
   const buttons: Button[][] = [[{ text: '🗺 Карта', url: `${siteUrl}#/map` }, { text: '🎯 Моя охота', url: `${siteUrl}#/hunt` }], [{ text: '✦ Открыть сайт', url: siteUrl }]]
-  const out: OutMsg[] = [{ chatId, photo: cardUrl(siteUrl, now), caption: fitCaption(personalDigest(d, hunt, now, siteUrl), siteUrl), buttons }]
+  const caption = fitCaption(personalDigest(d, hunt, now, siteUrl), siteUrl)
+  const found = [...new Map(today.flatMap(g => g.zones.flatMap(z => z.miscrits)).map(m => [m.id, m])).values()]
+  if (cardBase && found.length) {
+    // one personalised picture (rendered on demand by the card service): who, where, and a map crop each
+    const ids = found.map(m => m.id).sort((a, b) => a - b).join(',')
+    const perMiscrit = found.slice(0, 6).map(m => ({ text: `🗺 ${m.names[0]}`, url: mapLink(m, siteUrl) }))
+    const rows: Button[][] = []
+    for (let i = 0; i < perMiscrit.length; i += 2) rows.push(perMiscrit.slice(i, i + 2))
+    return [{ chatId, photo: `${cardBase}/api/hunt?ids=${ids}&d=${gameDay(now)}&v=${gameDate(now)}`, caption, buttons: [...rows, [{ text: '🎯 Моя охота', url: `${siteUrl}#/hunt` }, { text: '✦ Сайт', url: siteUrl }]] }]
+  }
+  const out: OutMsg[] = [{ chatId, photo: cardUrl(siteUrl, now), caption, buttons }]
+  if (cardBase) return out // nothing hunted today: the day card is enough
   const album = today.flatMap(g => g.zones.flatMap(z => z.miscrits.map(m => ({ photo: spriteUrl(m.names[0]), caption: `${m.names[0]} — ${region(g.region)} · ${zone(d, g.region, z.zone)}` }))))
   if (album.length) out.push({ chatId, album: album.slice(0, 10) })
   return out

@@ -4,12 +4,13 @@ import { expandBotData, type BotData } from '../scripts/sync/botData'
 import type { DigestData } from '../scripts/notify/digest'
 import { EMPTY_STATE, type BotState } from '../scripts/notify/state'
 import { TelegramClient } from '../scripts/notify/telegram'
+import { gameDay } from '../src/domain/schedule'
 import { handleUpdate, importState, runDaily, type BotDeps } from './handlers'
 
 interface Env {
   STATE: KVNamespace
   TELEGRAM_TOKEN: string; WEBHOOK_SECRET: string; ADMIN_TOKEN: string
-  SITE_URL: string; BOT_USERNAME: string
+  SITE_URL: string; BOT_USERNAME: string; CARD_URL?: string
 }
 
 // data lives on GitHub Pages; cached per isolate for 10 minutes (the Worker never parses the big miscrits.json)
@@ -32,7 +33,7 @@ function deps(env: Env): BotDeps {
     data: () => siteData(env.SITE_URL),
     deliver: m => tg.deliver(m),
     now: () => new Date(),
-    siteUrl: env.SITE_URL, botName: env.BOT_USERNAME, adminToken: env.ADMIN_TOKEN,
+    siteUrl: env.SITE_URL, botName: env.BOT_USERNAME, adminToken: env.ADMIN_TOKEN, cardUrl: env.CARD_URL || undefined,
   }
 }
 
@@ -51,14 +52,22 @@ export default {
     if (req.method === 'POST' && pathname === '/admin/import') {
       if (!safeEqual(req.headers.get('X-Admin-Token'), env.ADMIN_TOKEN)) return new Response('forbidden', { status: 403 })
       const s = await importState(deps(env), await req.json())
-      return Response.json({ subs: s.subs.length, groups: s.groups.length })
+      const { data } = await siteData(env.SITE_URL)
+      const day = gameDay(new Date())
+      const byId = new Map(data.miscrits.map(m => [m.id, m]))
+      const hunts = s.subs.map(x => ({ hunt: x.hunt.length, today: x.hunt.map(id => byId.get(id)).filter(m => m && m.spawns.some(sp => sp.days === 'all' || sp.days.includes(day))).map(m => m!.names[0]) }))
+      return Response.json({ hunts, subs: s.subs.length, groups: s.groups.length })
     }
     if (req.method === 'GET' && pathname === '/admin/status') {
       if (!safeEqual(req.headers.get('X-Admin-Token'), env.ADMIN_TOKEN)) return new Response('forbidden', { status: 403 })
       const s = await deps(env).loadState()
       const info = (await new TelegramClient(env.TELEGRAM_TOKEN).webhookInfo()).result as Record<string, unknown> | undefined
       // counts and webhook health only — no chat ids
-      return Response.json({ subs: s.subs.length, groups: s.groups.length, owner: s.owner !== null, lastDaily: s.lastDaily,
+      const { data } = await siteData(env.SITE_URL)
+      const day = gameDay(new Date())
+      const byId = new Map(data.miscrits.map(m => [m.id, m]))
+      const hunts = s.subs.map(x => ({ hunt: x.hunt.length, today: x.hunt.map(id => byId.get(id)).filter(m => m && m.spawns.some(sp => sp.days === 'all' || sp.days.includes(day))).map(m => m!.names[0]) }))
+      return Response.json({ hunts, subs: s.subs.length, groups: s.groups.length, owner: s.owner !== null, lastDaily: s.lastDaily,
         webhook: { pending: info?.pending_update_count, lastError: info?.last_error_message ?? null, url: String(info?.url ?? '').replace(/\/tg$/, '/tg') } })
     }
     if (req.method === 'POST' && pathname === '/admin/set-webhook') {
