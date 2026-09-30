@@ -1,0 +1,6 @@
+.today-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.motd { display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-left: 3px solid var(--r); }
+.today-controls { margin-bottom: 16px; }
+.today-section { padding: 16px; margin-bottom: 16px; }
+.today-section.highlight { border-color: var(--accent); }
+.today-zone + .today-zone { margin-top: 14px; }

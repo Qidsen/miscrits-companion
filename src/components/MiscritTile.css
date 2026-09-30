@@ -1,0 +1,10 @@
+.tile { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: var(--radius); background: var(--bg-2); border: 1px solid var(--line); border-top: 3px solid var(--r); text-align: center; transition: transform .1s, border-color .1s; }
+.tile:hover { transform: translateY(-2px); border-color: var(--r); }
+.tile-caught { opacity: .55; }
+.tile-name { font-size: 13px; font-weight: 600; line-height: 1.2; }
+.tile-meta { display: flex; gap: 6px; align-items: center; }
+.tile-check { color: var(--ok); font-weight: 700; }
+.avatar { border-radius: 50%; background: var(--bg-3); border: 2px solid var(--r, var(--line)); object-fit: cover; }
+.avatar-fallback { display: grid; place-items: center; color: var(--text-2); font-weight: 700; }
+.element-icons { display: inline-flex; gap: 2px; }
+.rarity-badge { font-size: 12px; padding: 2px 8px; border-radius: 999px; color: var(--r); border: 1px solid var(--r); }
