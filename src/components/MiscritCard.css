@@ -56,3 +56,9 @@
 .mcard-sm .mcard-link { flex-direction: row; text-align: left; gap: 10px; align-items: center; }
 .mcard-xs .mcard-link { display: grid; place-items: center; width: 100%; height: 100%; }
 button.mcard-hunt { background: none; border: 0; padding: 0; }
+
+.mcard-mini .mcard-art { padding: 8px 4px 0; }
+.mcard-mini .mcard-body { padding: 0 6px 8px; gap: 3px; }
+.mcard-mini .mcard-name { font-size: 12.5px; }
+.mcard-mini .mcard-rarity { font-size: 10px; }
+.mcard-mini .day-dots.compact .day-dot { width: 9px; height: 9px; }

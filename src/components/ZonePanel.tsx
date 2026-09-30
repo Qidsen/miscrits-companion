@@ -30,7 +30,7 @@ export function ZonePanel({ region, groups, day, hoveredZone, hoveredMiscrit, on
             </header>
             <div className="zone-cards">
               {g.miscrits.map(m => (
-                <MiscritCard key={m.id} m={m} size="sm" showDays day={day} region={region.name} highlighted={hoveredMiscrit === m.id}
+                <MiscritCard key={m.id} m={m} size="mini" showDays day={day} region={region.name} highlighted={hoveredMiscrit === m.id}
                   onHover={onHoverMiscrit} onClick={e => { if (onPick(m)) e.preventDefault() }} />
               ))}
             </div>

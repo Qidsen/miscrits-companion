@@ -12,8 +12,8 @@ import { Sprite } from './Sprite'
 import { DayDots } from './DayDots'
 import './MiscritCard.css'
 
-export type CardSize = 'xs' | 'sm' | 'md' | 'lg'
-const SPRITE: Record<CardSize, number> = { xs: 40, sm: 56, md: 96, lg: 150 }
+export type CardSize = 'xs' | 'sm' | 'mini' | 'md' | 'lg'
+const SPRITE: Record<CardSize, number> = { xs: 40, sm: 56, mini: 76, md: 96, lg: 150 }
 
 interface Props {
   m: Miscrit; size?: CardSize; showDays?: boolean; day?: number; region?: string

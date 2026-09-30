@@ -44,6 +44,22 @@ function FlyTo({ target, map, zoom, markers, refs, compact }: {
   return null
 }
 
+/** Phones: start zoomed so the map fills the container height ("cover"), centred on the markers. */
+function PhoneCover({ map, markers }: { map: MapInfo; markers: Marker[] }) {
+  const lmap = useMap()
+  useEffect(() => {
+    const size = lmap.getSize()
+    if (size.x >= 700 || !markers.length) return
+    const contain = Math.log2(Math.min(size.x / map.width, size.y / map.height))
+    const cover = Math.log2(Math.max(size.x / map.width, size.y / map.height))
+    const zoom = Math.min(cover, contain + 1.25) // big enough to read, never so big that the region is lost
+    const cx = markers.reduce((s, m) => s + m.x, 0) / markers.length
+    const cy = markers.reduce((s, m) => s + m.y, 0) / markers.length
+    lmap.setView(toLatLng(cx, cy, map), zoom, { animate: false })
+  }, [lmap, map]) // eslint-disable-line react-hooks/exhaustive-deps
+  return null
+}
+
 function ZoneLayer({ shapes, map, hovered, onHover }: { shapes: ZoneShape[]; map: MapInfo; hovered?: string | null; onHover?: (z: string | null) => void }) {
   return <>
     {shapes.map(s => {
@@ -77,6 +93,7 @@ export function RegionMap({ region, markers, compact, height = '100%', shapes = 
       boxZoom={!compact} keyboard={!compact} attributionControl={false}>
       <ImageOverlay url={mapImageUrl(map.file)} bounds={bounds} />
       {!compact && <ZoneLayer shapes={shapes} map={map} hovered={hoveredZone} onHover={onZoneHover} />}
+      {!compact && !flyTo && <PhoneCover map={map} markers={markers} />}
       <FlyTo target={flyTo} map={map} zoom={compact ? -1 : 0} markers={markers} refs={refs} compact={compact} />
       {markers.map(mk => {
         const m = mk.miscritId !== null ? byId.get(mk.miscritId) : undefined
