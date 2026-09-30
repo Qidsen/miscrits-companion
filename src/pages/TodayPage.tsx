@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useData } from '../data/DataProvider'
 import { regionLabel, useT } from '../i18n'
-import { useNow } from '../hooks/useNow'
-import { gameDay } from '../domain/schedule'
+import { useGameDay } from '../hooks/useGameDay'
 import { exclusiveToday, groupAvailable, miscritOfTheDay, rareAvailable } from '../domain/today'
 import { useCollection } from '../store/collection'
 import { DayPicker } from '../components/DayPicker'
@@ -15,8 +14,7 @@ import './TodayPage.css'
 export function TodayPage() {
   const t = useT()
   const { miscrits, regionByName } = useData()
-  const now = useNow(30_000)
-  const today = gameDay(now)
+  const { day: today } = useGameDay()
   const [picked, setPicked] = useState<number | null>(null)
   const day = picked ?? today
   const [hideCaught, setHideCaught] = useState(false)
@@ -27,7 +25,7 @@ export function TodayPage() {
   const exclusive = useMemo(() => exclusiveToday(visible, day), [visible, day])
   const rare = useMemo(() => rareAvailable(visible, day), [visible, day])
   const total = new Set(groups.flatMap(g => g.zones.flatMap(z => z.miscrits.map(m => m.id)))).size
-  const motd = miscritOfTheDay(miscrits, now)
+  const motd = useMemo(() => miscritOfTheDay(miscrits, new Date()), [miscrits, today])
 
   return (
     <div className="container today">

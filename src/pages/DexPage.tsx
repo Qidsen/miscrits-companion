@@ -4,7 +4,7 @@ import { useData } from '../data/DataProvider'
 import { regionLabel, useT, type I18nKey } from '../i18n'
 import { EMPTY_FILTER, filterMiscrits, filterToParams, paramsToFilter, type DexFilter, type SortKey } from '../domain/filters'
 import { BASE_ELEMENTS, RARITY_ORDER } from '../domain/miscrit'
-import { gameDay } from '../domain/schedule'
+import { useGameDay } from '../hooks/useGameDay'
 import { useCollection } from '../store/collection'
 import { DayPicker } from '../components/DayPicker'
 import { MiscritCard } from '../components/MiscritCard'
@@ -17,6 +17,7 @@ export function DexPage() {
   const t = useT()
   const { miscrits, regions } = useData()
   const [params, setParams] = useSearchParams()
+  const { day: today } = useGameDay()
   const f = paramsToFilter(params)
   const set = (over: Partial<DexFilter>) => setParams(filterToParams({ ...f, ...over }), { replace: true })
   // The router applies URL updates in a transition, so a URL-controlled input lags and drops keys.
@@ -44,7 +45,7 @@ export function DexPage() {
             </button>
           ))}
         </div>
-        <DayPicker value={f.day} today={gameDay(new Date())} onChange={day => set({ day })} anyLabel={t('dex.anyDay')} />
+        <DayPicker value={f.day} today={today} onChange={day => set({ day })} anyLabel={t('dex.anyDay')} />
         <div className="row">
           <select className="input dex-select" value={f.region ?? ''} onChange={e => set({ region: e.target.value || null })} aria-label={t('dex.region')}>
             <option value="">{t('dex.region')}: {t('dex.any')}</option>

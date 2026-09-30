@@ -62,3 +62,7 @@ export function formatDuration(ms: number): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`
 }
+
+export function msUntilReset(now: Date): number {
+  return nextReset(now).getTime() - now.getTime()
+}

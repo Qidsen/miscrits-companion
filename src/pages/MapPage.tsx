@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom'
 import { useData } from '../data/DataProvider'
 import { regionLabel, useT, type I18nKey } from '../i18n'
-import { gameDay } from '../domain/schedule'
+import { useGameDay } from '../hooks/useGameDay'
 import { markerVisible } from '../domain/mapCoords'
 import { BASE_ELEMENTS, RARITY_ORDER } from '../domain/miscrit'
 import { elementIconUrl } from '../data/images'
@@ -18,8 +18,10 @@ export function MapPage() {
   const { regions, regionByName, markers, byId, miscrits } = useData()
   const { region: param } = useParams()
   const [search] = useSearchParams()
-  const today = gameDay(new Date())
-  const [day, setDay] = useState<number | null>(today)
+  const { day: today } = useGameDay()
+  // undefined = follow the live game day; null = any day
+  const [picked, setDay] = useState<number | null | undefined>(undefined)
+  const day = picked === undefined ? today : picked
   const [rarities, setRarities] = useState<string[]>([])
   const [elements, setElements] = useState<string[]>([])
   const [hideCaught, setHideCaught] = useState(false)

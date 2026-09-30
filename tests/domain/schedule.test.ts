@@ -70,3 +70,9 @@ test('formatDuration', () => {
   expect(formatDuration(3_723_000)).toBe('01:02:03')
   expect(formatDuration(-5)).toBe('00:00:00')
 })
+
+import { msUntilReset } from '../../src/domain/schedule'
+test('msUntilReset', () => {
+  expect(msUntilReset(new Date('2026-09-30T23:00:00Z'))).toBe(3_600_000)
+  expect(msUntilReset(new Date('2026-10-01T00:00:00Z'))).toBe(86_400_000)
+})
