@@ -1,6 +1,9 @@
 @import './tokens.css';
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; min-height: 100%; }
+/* sticky footer: the page is at least one screen tall and main takes the free space */
+#root { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+#root > main { flex: 1 0 auto; }
 body {
   color: var(--text); font: 15px/1.5 var(--font);
   background:
