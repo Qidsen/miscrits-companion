@@ -171,4 +171,5 @@ export const en = {
   'games.newRecord': "New record!",
   'games.evolvesInto': "evolves into…",
   'games.memBest': "Best: {moves} moves",
+  'day.pick': "Pick a day",
 } as const

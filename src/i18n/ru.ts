@@ -173,4 +173,5 @@ export const ru: Record<keyof typeof en, string> = {
   'games.newRecord': "Новый рекорд!",
   'games.evolvesInto': "эволюционирует в…",
   'games.memBest': "Рекорд: {moves} ходов",
+  'day.pick': "Выбор дня",
 }

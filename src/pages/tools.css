@@ -78,3 +78,4 @@
 @media (max-width: 1100px) { .calc-layout { grid-template-columns: 1fr 1fr; } .calc-results { grid-column: 1 / -1; order: 3; } .team-slots { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 760px) { .el-layout, .el-cycles { grid-template-columns: 1fr; } .calc-layout { grid-template-columns: 1fr; } .team-slot { min-height: 0; } }
 @media (max-width: 480px) { .team-slots { grid-template-columns: 1fr; } }
+.el-layout > * { min-width: 0; } .el-layout > .panel:first-child { overflow-x: auto; } .el-grid { min-width: 420px; }

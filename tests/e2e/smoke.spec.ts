@@ -8,7 +8,7 @@ test('Today shows countdown, data badge and tiles', async ({ page }) => {
 })
 
 test('no horizontal scroll', async ({ page }) => {
-  for (const route of ['#/', '#/dex', '#/m/1', '#/map/Forest']) {
+  for (const route of ['#/', '#/dex', '#/m/1', '#/map/Forest', '#/week', '#/relics', '#/collection', '#/elements', '#/calc?a=1.30&d=20.30', '#/team?t=1.30~20.30', '#/compare?ids=1,20,94', '#/hunt', '#/games', '#/games/memory']) {
     await page.goto(route)
     await page.waitForLoadState('networkidle')
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
@@ -83,4 +83,42 @@ test('Miscrit page resets evolution when navigating to another miscrit', async (
 test('Today shows rare catches block', async ({ page }) => {
   await page.goto('#/')
   await expect(page.getByTestId('rare-today')).toBeVisible()
+})
+
+test('map zones render and highlight on hover', async ({ page }) => {
+  await page.goto('#/map/Forest')
+  await expect(page.locator('.zone-label')).toHaveCount(4)
+  await page.locator('[data-testid="zone-block"]').first().hover()
+  expect(await page.locator('.map-pin-dim').count()).toBeGreaterThan(0)
+})
+
+test('every new page renders without errors', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', e => errors.push(e.message))
+  for (const r of ['#/week', '#/relics', '#/collection', '#/elements', '#/calc?a=1.30&d=20.30', '#/team?t=1.30~20.30', '#/compare?ids=1,20', '#/hunt', '#/games', '#/games/silhouette', '#/games/memory', '#/games/evolution', '#/c/garbage***']) {
+    await page.goto(r); await page.waitForLoadState('networkidle')
+    await expect(page.locator('main')).not.toBeEmpty()
+  }
+  expect(errors).toEqual([])
+})
+
+test('day switches at reset without reload', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-09-29T23:59:50Z') }) // Kyiv 02:59:50 Wed → game Tue
+  await page.goto('#/')
+  await expect(page.locator('[data-testid="game-day"]')).toHaveText(/Вторник|Tuesday/)
+  await page.clock.runFor(15_000)
+  await expect(page.locator('[data-testid="game-day"]')).toHaveText(/Среда|Wednesday/)
+})
+
+test('share link round trip', async ({ page }) => {
+  await page.goto('#/m/1'); await page.getByTestId('toggle-caught').click()
+  await page.goto('#/collection')
+  const link = await page.getByTestId('share-link').inputValue()
+  await page.goto(link.slice(link.indexOf('#')))
+  await expect(page.getByTestId('friend-caught-count')).toHaveText(/1/)
+})
+
+test('damage calculator shows a result table', async ({ page }) => {
+  await page.goto('#/calc?a=20.30&d=1.30')
+  await expect(page.getByTestId('dmg-table').locator('tbody tr').first()).toBeVisible()
 })
