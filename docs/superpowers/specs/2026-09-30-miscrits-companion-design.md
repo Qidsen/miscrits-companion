@@ -217,7 +217,7 @@ Constraint: the site stays static (GitHub Pages); scheduled work runs in GitHub 
 - Bot created by the owner via @BotFather; token in repo secret `TELEGRAM_TOKEN`, state encryption key in `NOTIFY_KEY`, bot username in repo variable `BOT_USERNAME` (used by the site's "Connect Telegram" panel via `VITE_BOT_USERNAME` at build time).
 - Workflow `notify.yml` runs every 15 minutes: polls `getUpdates`, applies commands, sends replies, and once per game day (first run after the 03:00 Kyiv reset) sends digests. GitHub may delay scheduled runs by 5–30 min; replies to commands are therefore delayed too.
 - Commands (private chat): `/start` (help), `/hunt <code>` (subscribe with a hunt list encoded like the collection share code), `/today` (digest now), `/stop` (unsubscribe). Group: adding the bot or `/subscribe` subscribes the group to the group digest; `/unsubscribe` stops.
-- Personal digest: game day, hunted miscrits available today (region, zone), day-restricted Exotic/Legendary available today, site link. Group digest: game day, day-restricted rare miscrits today, "new in the game" since the last digest, link to the daily challenge.
+- Personal digest: game day, hunted miscrits available today (region, zone), day-restricted Exotic/Legendary available today, site link. Group digest: game day, day-restricted rare miscrits today, "new in the game" since the last digest, site link. The tournament is site-only; the bot never mentions it.
 - Subscriber state (`notify/state.enc`) is committed AES-256-GCM encrypted; plaintext chat ids never enter the public repo.
 - Missing secrets → the workflow exits successfully doing nothing.
 

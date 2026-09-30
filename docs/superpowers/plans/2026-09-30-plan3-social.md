@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** What's-new changelog, calculator calibration from real hits, daily challenge tournament with result links, Telegram bot with daily personal and group digests.
+**Goal:** What's-new changelog, calculator calibration from real hits, daily challenge tournament with result links (site only), Telegram bot with daily personal and group digests (news, rare of the day, hunt list — no tournament).
 
 **Architecture:** Pure domain modules (`src/domain/*`, `scripts/notify/*`) written test-first; the bot is a stateless script run by GitHub Actions every 15 minutes that keeps its state in an AES-GCM encrypted file committed to the repo. The site only gains pages and panels.
 
