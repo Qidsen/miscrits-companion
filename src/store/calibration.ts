@@ -15,7 +15,7 @@ const cleanObs = (v: unknown): Observation[] => (Array.isArray(v) ? v : []).flat
   const x = (o ?? {}) as Record<string, unknown>
   const f = [num(x.attackerId), num(x.attackerLevel, 1), num(x.abilityId), num(x.defenderId), num(x.defenderLevel, 1), num(x.damage)]
   if (f.some(n => n === null)) return []
-  return [{ attackerId: f[0]!, attackerLevel: f[1]!, abilityId: f[2]!, defenderId: f[3]!, defenderLevel: f[4]!, damage: f[5]!, ...(num(x.attackStat, 1) ? { attackStat: num(x.attackStat, 1)! } : {}) }]
+  return [{ attackerId: f[0]!, attackerLevel: f[1]!, abilityId: f[2]!, defenderId: f[3]!, defenderLevel: f[4]!, damage: f[5]!, ...(num(x.attackStat, 1) ? { attackStat: num(x.attackStat, 1)! } : {}), attackerRelics: x.attackerRelics === true, defenderRelics: x.defenderRelics === true }]
 }).slice(0, 200)
 const cleanApplied = (v: unknown): Applied | null => {
   const x = (v ?? {}) as Record<string, unknown>

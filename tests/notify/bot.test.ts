@@ -77,3 +77,30 @@ test('groups subscribe by command or by adding the bot; kicked removes', () => {
   const kicked = applyUpdate(added.state, { update_id: 2, my_chat_member: { chat: { id: -9, type: 'supergroup' }, new_chat_member: { status: 'kicked' } } }, ctx)
   expect(kicked.state.groups).toEqual([])
 })
+
+import { dailyTargets, markSent } from '../../scripts/notify/state'
+import { fitMessage } from '../../scripts/notify/digest'
+
+test('daily sending resumes after a crash without resending', () => {
+  let s: BotState = { ...EMPTY_STATE, subs: [{ chatId: 1, name: '', hunt: [] }, { chatId: 2, name: '', hunt: [] }], groups: [-5] }
+  expect(dailyTargets(s, WED)).toEqual({ users: [1, 2], groups: [-5] })
+  s = markSent(s, WED, 1)
+  expect(dailyTargets(s, WED)).toEqual({ users: [2], groups: [-5] }) // crash here → next run continues with 2
+  s = markSent(markSent(s, WED, 2), WED, -5)
+  expect(dailyTargets(s, WED)).toEqual({ users: [], groups: [] })
+  expect(shouldSendDaily(s, WED)).toBe(false)
+  expect(dailyTargets(s, new Date('2026-10-01T12:00:00Z'))).toEqual({ users: [1, 2], groups: [-5] }) // next game day
+})
+
+test('long messages are cut below the Telegram limit with a pointer to the site', () => {
+  const long = Array.from({ length: 400 }, (_, i) => `• line number ${i}`).join('\n')
+  const out = fitMessage(long, 'https://x.test/')
+  expect(out.length).toBeLessThanOrEqual(4096)
+  expect(out).toContain('https://x.test/')
+  expect(fitMessage('short', 'u')).toBe('short')
+})
+
+test('group commands work with a @suffix even when the bot name is unknown', () => {
+  const r = applyUpdate(EMPTY_STATE, gm(-7, '/subscribe@whatever_bot'), { ...ctx, botName: '' })
+  expect(r.state.groups).toEqual([-7])
+})

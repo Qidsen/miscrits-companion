@@ -128,7 +128,7 @@ export function CalculatorPage() {
         <Fighter title={t('calc.defender')} side={d} onChange={s => set('d', s)} buffs={buffD} setBuffs={setBuffD} stats={D?.stats ?? null} />
       </div>
       <div style={{ marginTop: 16 }}>
-        <CalibrationPanel attacker={A && a ? { m: A.m, level: a.level } : undefined} defender={D && d ? { m: D.m, level: d.level } : undefined} />
+        <CalibrationPanel attacker={A && a ? { m: A.m, level: a.level, relics: a.relics } : undefined} defender={D && d ? { m: D.m, level: d.level, relics: d.relics } : undefined} />
       </div>
     </div>
   )

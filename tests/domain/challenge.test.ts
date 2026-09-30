@@ -36,3 +36,13 @@ test('leaderboard keeps the best result per name', () => {
   ])
   expect(b.map(x => [x.name, x.correct])).toEqual([['B', 9], ['A', 9]])
 })
+
+import { totals } from '../../src/domain/challenge'
+test('all-time totals count each name once per day', () => {
+  const r = { date: '2026-09-30', name: 'A', correct: 5, ms: 1000 }
+  const t = totals([r, r, { ...r, date: '2026-10-01' }])
+  expect(t).toEqual([{ name: 'A', score: 2 * challengeScore(5, 1000), days: 2 }])
+})
+test('results dated in the future are rejected', () => {
+  expect(decodeResult(encodeResult({ date: '2099-01-01', name: 'x', correct: 1, ms: 1 }))).toBeNull()
+})

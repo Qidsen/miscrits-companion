@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useData } from '../../data/DataProvider'
 import { spriteUrl } from '../../data/images'
@@ -22,9 +22,16 @@ export function ChallengeGame() {
   const [now, setNow] = useState(Date.now())
   const [finished, setFinished] = useState<{ correct: number; ms: number } | null>(null)
   useEffect(() => { if (finished) return; const id = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(id) }, [finished])
+  // decided once at mount: a run already recorded for today (even an abandoned one) means no new attempt
+  const [allowed] = useState(() => !played[date] && !!name.trim())
+  const next = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useEffect(() => {
+    // record the attempt as soon as it starts (0 points); finishing overwrites it — reloading can't reroll
+    if (allowed) record({ date, name: name.trim(), correct: 0, ms: 86_400_000 })
+    return () => clearTimeout(next.current)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!name.trim()) return <Navigate to="/tournament" replace />
-  if (played[date] && !finished) return <Navigate to="/tournament" replace />
+  if (!allowed && !finished) return <Navigate to="/tournament" replace />
 
   const q = questions[i]
   const answer = (opt: string | number) => {
@@ -33,7 +40,7 @@ export function ChallengeGame() {
     const ok = opt === q.answer
     const total = correct + (ok ? 1 : 0)
     setCorrect(total)
-    setTimeout(() => {
+    next.current = setTimeout(() => {
       if (i + 1 < questions.length) { setI(i + 1); setPicked(null); return }
       const ms = Date.now() - start
       record({ date, name: name.trim(), correct: total, ms })

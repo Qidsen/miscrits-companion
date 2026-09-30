@@ -42,7 +42,8 @@ export function applyUpdate(s: BotState, u: TgUpdate, ctx: Ctx): { state: BotSta
   const msg = u.message
   if (!msg?.text) return { state, replies }
   const [rawCmd, ...args] = msg.text.trim().split(/\s+/)
-  const cmd = rawCmd.toLowerCase().replace(new RegExp(`@${ctx.botName.toLowerCase()}$`), '')
+  // "/cmd@bot" in groups: strip our own name, or any suffix when the name is not configured
+  const cmd = rawCmd.toLowerCase().replace(ctx.botName ? new RegExp(`@${ctx.botName.toLowerCase()}$`) : /@\w+$/, '')
   const chatId = msg.chat.id
   const known = new Set(ctx.data.miscrits.map(m => m.id))
 

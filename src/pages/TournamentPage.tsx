@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../data/DataProvider'
 import { useT } from '../i18n'
-import { challengeScore, decodeResult, encodeResult, leaderboard, type ChallengeResult } from '../domain/challenge'
+import { challengeScore, decodeResult, encodeResult, leaderboard, totals as allTimeTotals, type ChallengeResult } from '../domain/challenge'
 import { collectionStats, decodeIds } from '../domain/collection'
 import { formatClock, gameDate } from '../domain/schedule'
 import { useCollection } from '../store/collection'
@@ -50,15 +50,7 @@ export function TournamentPage() {
   const [bad, setBad] = useState(false)
   const all = useMemo(() => [...Object.values(played), ...friends], [played, friends])
   const today = leaderboard(all.filter(r => r.date === date))
-  const totals = useMemo(() => {
-    const m = new Map<string, { name: string; score: number; days: number }>()
-    for (const r of all) {
-      const x = m.get(r.name) ?? { name: r.name, score: 0, days: 0 }
-      x.score += challengeScore(r.correct, r.ms); x.days++
-      m.set(r.name, x)
-    }
-    return [...m.values()].sort((a, b) => b.score - a.score)
-  }, [all])
+  const totals = useMemo(() => allTimeTotals(all), [all])
   const colRows = useMemo(() => [{ name: name || t('tour.you'), ids: myCaught }, ...collections.map(c => ({ name: c.name, ids: decodeIds(c.code) ?? [] }))]
     .map(r => ({ ...r, stats: collectionStats(miscrits, new Set(r.ids)) })), [collections, myCaught, miscrits, name, t])
   const myLink = mine ? `${location.origin}${location.pathname}#/r/${encodeResult(mine)}` : ''

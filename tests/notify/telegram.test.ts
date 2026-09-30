@@ -19,3 +19,11 @@ test('getUpdates returns the result list', async () => {
   const tg = new TelegramClient('T', (async () => json(200, { ok: true, result: [{ update_id: 3 }] })) as typeof fetch, () => Promise.resolve())
   expect(await tg.getUpdates(0)).toEqual([{ update_id: 3 }])
 })
+
+test('network errors and non-JSON replies never throw', async () => {
+  const boom = new TelegramClient('T', (async () => { throw new Error('fetch failed') }) as typeof fetch, () => Promise.resolve())
+  expect(await boom.send(5, 'hi')).toBe('error')
+  expect(await boom.getUpdates(0)).toEqual([])
+  const html = new TelegramClient('T', (async () => new Response('<html>502</html>', { status: 502 })) as typeof fetch, () => Promise.resolve())
+  expect(await html.send(5, 'hi')).toBe('error')
+})

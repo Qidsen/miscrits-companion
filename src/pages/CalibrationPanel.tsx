@@ -9,9 +9,10 @@ import { MiscritAvatar } from '../components/MiscritAvatar'
 import { Panel } from '../components/Panel'
 
 /** Record real hits and fit the formula to them. Attacker/defender come from the calculator. */
-export function CalibrationPanel({ attacker, defender }: { attacker?: { m: Miscrit; level: number }; defender?: { m: Miscrit; level: number } }) {
+type Side = { m: Miscrit; level: number; relics: boolean }
+export function CalibrationPanel({ attacker, defender }: { attacker?: Side; defender?: Side }) {
   const t = useT()
-  const { byId } = useData()
+  const { byId, relics } = useData()
   const { observations, applied, add, remove, apply, clear } = useCalibration()
   const abilities = (attacker?.m.abilities.filter(isDamaging) ?? []).sort((x, y) => (y.ap ?? 0) - (x.ap ?? 0))
   const [abilityId, setAbilityId] = useState<number | null>(null)
@@ -21,13 +22,13 @@ export function CalibrationPanel({ attacker, defender }: { attacker?: { m: Miscr
   const [copied, setCopied] = useState(false)
   const ability = abilities.find(a => a.id === abilityId) ?? abilities[0]
   const params = applied ?? undefined
-  const rows = useMemo(() => observations.map(o => ({ o, p: predict(o, byId, params) })), [observations, byId, params])
+  const rows = useMemo(() => observations.map(o => ({ o, p: predict(o, byId, params, relics) })), [observations, byId, params, relics])
 
   const canAdd = attacker && defender && ability && Number(dmg) > 0
   const onAdd = () => {
     if (!canAdd) return
     add({ attackerId: attacker.m.id, attackerLevel: attacker.level, abilityId: ability.id, defenderId: defender.m.id, defenderLevel: defender.level,
-      damage: Number(dmg), ...(Number(attackStat) > 0 ? { attackStat: Number(attackStat) } : {}) })
+      damage: Number(dmg), attackerRelics: attacker.relics, defenderRelics: defender.relics, ...(Number(attackStat) > 0 ? { attackStat: Number(attackStat) } : {}) })
     setDmg('')
   }
 
@@ -61,7 +62,7 @@ export function CalibrationPanel({ attacker, defender }: { attacker?: { m: Miscr
         </div>
       </>}
       <div className="row">
-        <button className="btn" disabled={!observations.length} onClick={() => setFit(fitCalibration(observations, byId))} data-testid="cal-fit">🧪 {t('cal.fit')}</button>
+        <button className="btn" disabled={!observations.length} onClick={() => setFit(fitCalibration(observations, byId, relics))} data-testid="cal-fit">🧪 {t('cal.fit')}</button>
         {applied && <button className="btn" onClick={() => { clear(); setFit(null) }}>{t('cal.reset')}</button>}
       </div>
       {fit && (

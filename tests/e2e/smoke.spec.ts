@@ -205,3 +205,13 @@ test('calibration with a few hits marks the calculator as calibrated', async ({ 
   await page.getByTestId('cal-apply').click()
   await expect(page.getByTestId('cal-badge')).toBeVisible()
 })
+
+test('reloading mid-challenge does not grant another attempt', async ({ page }) => {
+  await page.goto('#/tournament')
+  await page.getByTestId('tour-name').fill('Cheater')
+  await page.getByTestId('tour-play').click()
+  await page.getByTestId('game-option').first().click()
+  await page.reload()
+  await expect(page).toHaveURL(/#\/tournament$/)
+  await expect(page.getByTestId('tour-play')).toHaveCount(0)
+})

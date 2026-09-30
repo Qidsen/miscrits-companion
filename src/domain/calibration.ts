@@ -1,30 +1,40 @@
-import type { Miscrit } from '../data/types'
+import type { Miscrit, Relic } from '../data/types'
 import { isDamaging } from './damage'
 import { matchup } from './elements'
 import { DEFAULT_PARAMS, type FormulaParams } from './formulaConfig'
-import { statsAt } from './stats'
+import { statsAt, withRelics } from './stats'
 
 export interface Observation {
   attackerId: number; attackerLevel: number; attackStat?: number
   abilityId: number; defenderId: number; defenderLevel: number; damage: number
+  /** relic sets equipped when the hit was observed (as toggled in the calculator) */
+  attackerRelics?: boolean; defenderRelics?: boolean
 }
 export interface Calibration extends FormulaParams { n: number; errorBefore: number; errorAfter: number }
 
 /** Damage at multiplier 1 and scale 1, plus how the matchup multiplies it. */
-function baseOf(o: Observation, byId: Map<number, Miscrit>) {
+type Relics = Map<number, Pick<Relic, 'level' | 'effect'>>
+
+const equip = (m: Miscrit, level: number, on: boolean | undefined, relics?: Relics) => {
+  const s = statsAt(m, level)
+  if (!on || !relics || !m.relicSet) return s
+  return withRelics(s, m.relicSet.relicIds.map(id => relics.get(id)).filter((r): r is Pick<Relic, 'level' | 'effect'> => !!r && r.level <= level))
+}
+
+function baseOf(o: Observation, byId: Map<number, Miscrit>, relics?: Relics) {
   const a = byId.get(o.attackerId), d = byId.get(o.defenderId)
   const ability = a?.abilities.find(x => x.id === o.abilityId)
   if (!a || !d || !ability || !isDamaging(ability)) return null
   const physical = ability.element === 'Physical'
-  const as = statsAt(a, o.attackerLevel), ds = statsAt(d, o.defenderLevel)
+  const as = equip(a, o.attackerLevel, o.attackerRelics, relics), ds = equip(d, o.defenderLevel, o.defenderRelics, relics)
   const atk = o.attackStat && o.attackStat > 0 ? o.attackStat : physical ? as.pa : as.ea
   const def = physical ? ds.pd : ds.ed
   const mu = physical ? { strong: 0, weak: 0 } : matchup(ability.element, d.element)
   return { base: ability.ap! * (atk / Math.max(1, def)), ...mu }
 }
 
-export function predict(o: Observation, byId: Map<number, Miscrit>, p: Partial<FormulaParams> = {}): { value: number; multiplier: number } | null {
-  const b = baseOf(o, byId)
+export function predict(o: Observation, byId: Map<number, Miscrit>, p: Partial<FormulaParams> = {}, relics?: Relics): { value: number; multiplier: number } | null {
+  const b = baseOf(o, byId, relics)
   if (!b) return null
   const f = { ...DEFAULT_PARAMS, ...p }
   const multiplier = f.strong ** b.strong * f.weak ** b.weak
@@ -42,9 +52,9 @@ const meanAbsPct = (rows: { o: Observation; pred: number }[]) =>
  * Fit damageScale from neutral hits (or all hits corrected by the default multipliers),
  * then strong/weak from ≥2 pure advantage/disadvantage hits. Medians keep outliers harmless.
  */
-export function fitCalibration(obs: Observation[], byId: Map<number, Miscrit>): Calibration | null {
+export function fitCalibration(obs: Observation[], byId: Map<number, Miscrit>, relics?: Relics): Calibration | null {
   if (!obs.length) return null
-  const usable = obs.map(o => ({ o, b: baseOf(o, byId) })).filter((x): x is { o: Observation; b: NonNullable<ReturnType<typeof baseOf>> } =>
+  const usable = obs.map(o => ({ o, b: baseOf(o, byId, relics) })).filter((x): x is { o: Observation; b: NonNullable<ReturnType<typeof baseOf>> } =>
     !!x.b && x.b.base > 0 && x.o.damage > 0)
   if (!usable.length) return { ...DEFAULT_PARAMS, n: 0, errorBefore: 0, errorAfter: 0 }
 

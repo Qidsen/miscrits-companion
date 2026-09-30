@@ -37,3 +37,11 @@ test('attack stat override is used when given', () => {
   const a = predict(base, byId)!.value, b = predict({ ...base, attackStat: 500 }, byId)!.value
   expect(b).toBeGreaterThan(a)
 })
+
+test('observations made with relics are predicted with relics', () => {
+  const relicMap = new Map([[900, { id: 900, level: 10, effect: { ea: 40 } }]]) as never
+  const withSet = new Map([...byId].map(([id, m]) => [id, { ...m, relicSet: { name: 'A', relicIds: [900] } }]))
+  const plain = predict(base, withSet)!.value
+  const boosted = predict({ ...base, attackerRelics: true }, withSet, {}, relicMap)!.value
+  expect(boosted).toBeGreaterThan(plain)
+})

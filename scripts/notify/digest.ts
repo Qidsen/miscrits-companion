@@ -24,6 +24,22 @@ function rareToday(d: DigestData, now: Date): string | null {
   return rare.length ? `✨ <b>Редкие только сегодня:</b> ${rare.map(m => e(m.names[0])).join(', ')}` : null
 }
 
+const LIMIT = 3900 // Telegram rejects messages over 4096 characters
+
+/** Cut at a line boundary and point to the site when a digest is too long for Telegram. */
+export function fitMessage(text: string, siteUrl: string): string {
+  if (text.length <= LIMIT) return text
+  const lines = text.split('\n')
+  const out: string[] = []
+  let len = 0
+  for (const l of lines) {
+    if (len + l.length + 1 > LIMIT - 150) break
+    out.push(l)
+    len += l.length + 1
+  }
+  return `${out.join('\n')}\n… и ещё ${lines.length - out.length} строк — полный список на сайте: ${e(siteUrl)}`
+}
+
 export function personalDigest(d: DigestData, hunt: number[], now: Date, siteUrl: string): string {
   const set = new Set(hunt)
   const groups = groupAvailable(d.miscrits.filter(m => set.has(m.id)), gameDay(now))
@@ -38,7 +54,7 @@ export function personalDigest(d: DigestData, hunt: number[], now: Date, siteUrl
   const rare = rareToday(d, now)
   if (rare) lines.push('', rare)
   lines.push('', `🔗 ${e(siteUrl)}`)
-  return lines.join('\n')
+  return fitMessage(lines.join('\n'), siteUrl)
 }
 
 export function groupDigest(d: DigestData, now: Date, siteUrl: string, news: ChangeEntry[]): string {
@@ -56,5 +72,5 @@ export function groupDigest(d: DigestData, now: Date, siteUrl: string, news: Cha
     if (markers) lines.push(`• Новых маркеров на карте: ${markers}`)
   }
   lines.push('', `🔗 ${e(siteUrl)}`)
-  return lines.join('\n')
+  return fitMessage(lines.join('\n'), siteUrl)
 }
