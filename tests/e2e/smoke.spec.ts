@@ -8,7 +8,7 @@ test('Today shows countdown, data badge and tiles', async ({ page }) => {
 })
 
 test('no horizontal scroll', async ({ page }) => {
-  for (const route of ['#/', '#/dex', '#/m/1', '#/map/Forest', '#/week', '#/relics', '#/collection', '#/elements', '#/calc?a=1.30&d=20.30', '#/team?t=1.30~20.30', '#/compare?ids=1,20,94', '#/hunt', '#/games', '#/games/memory']) {
+  for (const route of ['#/', '#/dex', '#/m/1', '#/map/Forest', '#/week', '#/relics', '#/collection', '#/elements', '#/calc?a=1.30&d=20.30', '#/team?t=1.30~20.30', '#/compare?ids=1,20,94', '#/hunt', '#/games', '#/games/memory', '#/news', '#/tournament']) {
     await page.goto(route)
     await page.waitForLoadState('networkidle')
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
@@ -167,4 +167,41 @@ test('compare and hunt use full width columns on phones', async ({ page }) => {
   await page.goto('#/hunt')
   const panel = await page.locator('.panel').first().boundingBox()
   expect(panel!.width).toBeGreaterThan(300)
+})
+
+test('news page renders', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', e => errors.push(e.message))
+  await page.goto('#/news')
+  await expect(page.locator('main h1')).toBeVisible()
+  expect(errors).toEqual([])
+})
+
+test('daily challenge play-through produces a result link that a friend can open', async ({ page, browser }) => {
+  await page.goto('#/tournament')
+  await page.getByTestId('tour-name').fill('Tester')
+  await page.getByTestId('tour-play').click()
+  for (let i = 0; i < 10; i++) {
+    await page.getByTestId('game-option').first().click()
+    await page.waitForTimeout(750)
+  }
+  const link = await page.getByTestId('result-link').inputValue()
+  const friend = await (await browser.newContext({ serviceWorkers: 'block' })).newPage()
+  await friend.goto(new URL(link.slice(link.indexOf('#')), page.url()).href)
+  await expect(friend.getByTestId('result-ok')).toBeVisible()
+  await friend.goto(new URL('#/tournament', page.url()).href)
+  await expect(friend.locator('.board').first()).toContainText('Tester') // first board = today's leaderboard
+})
+
+test('broken result link shows an error', async ({ page }) => {
+  await page.goto('#/r/garbage')
+  await expect(page.getByRole('alert')).toBeVisible()
+})
+
+test('calibration with a few hits marks the calculator as calibrated', async ({ page }) => {
+  await page.goto('#/calc?a=20.30&d=1.30')
+  for (const v of ['80', '85', '90']) { await page.getByTestId('cal-damage').fill(v); await page.getByTestId('cal-add').click() }
+  await page.getByTestId('cal-fit').click()
+  await page.getByTestId('cal-apply').click()
+  await expect(page.getByTestId('cal-badge')).toBeVisible()
 })
