@@ -28,3 +28,12 @@ test('rejects >10% drop', () => {
   expect(() => validateSnapshot(snap(100, 80), { miscrits: 100, markers: 100 })).toThrow(/markers dropped/)
   expect(() => validateSnapshot(snap(90), { miscrits: 100, markers: 0 })).not.toThrow()
 })
+
+import { checkRawShape } from '../../scripts/sync/validate'
+test('checkRawShape rejects wrong source shapes with a clear message', () => {
+  const ok = { game: [], organized: {}, areaNames: {}, relics: [], markers: { Forest: [] } }
+  expect(() => checkRawShape(ok)).not.toThrow()
+  expect(() => checkRawShape({ ...ok, relics: undefined })).toThrow(/relics/)
+  expect(() => checkRawShape({ ...ok, markers: { Forest: undefined } })).toThrow(/markers Forest/)
+  expect(() => checkRawShape({ ...ok, game: {} })).toThrow(/game/)
+})

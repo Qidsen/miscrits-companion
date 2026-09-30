@@ -8,7 +8,7 @@ type Vars = Record<string, string | number>
 const dicts: Record<Lang, Record<I18nKey, string>> = { en, ru }
 
 export function translate(lang: Lang, key: I18nKey, vars?: Vars): string {
-  const s = dicts[lang][key] ?? en[key] ?? key
+  const s = (dicts[lang] ?? en)[key] ?? en[key] ?? key
   return vars ? s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`)) : s
 }
 

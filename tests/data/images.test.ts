@@ -6,3 +6,8 @@ test('urls', () => {
   expect(avatarUrl('Dark Nessy')).toBe('https://cdn.worldofmiscrits.com/avatars/dark_nessy_avatar.png')
   expect(spriteUrl('Afterburn')).toBe('https://cdn.worldofmiscrits.com/miscrits/afterburn_back.png')
 })
+
+test('avatarUrl escapes characters that could break HTML attributes', () => {
+  const u = avatarUrl('a"b onerror=x <c>')
+  expect(u).not.toMatch(/["<> ]/)
+})

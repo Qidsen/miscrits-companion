@@ -61,3 +61,26 @@ test('search palette', async ({ page }) => {
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/#\/m\/1$/)
 })
+
+test('Dex search input keeps typed characters and caret', async ({ page }) => {
+  await page.goto('#/dex')
+  const input = page.getByTestId('dex-search')
+  await input.pressSequentially('afterburn')
+  await input.press('Home')
+  await input.pressSequentially('blighted ')
+  await expect(input).toHaveValue('blighted afterburn')
+  await expect(page.getByTestId('miscrit-tile')).toHaveCount(1)
+})
+
+test('Miscrit page resets evolution when navigating to another miscrit', async ({ page }) => {
+  await page.goto('#/m/1')
+  await page.getByRole('button', { name: /^4\./ }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Afterburn')
+  await page.evaluate(() => { location.hash = '#/m/20' })
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Waddles')
+})
+
+test('Today shows rare catches block', async ({ page }) => {
+  await page.goto('#/')
+  await expect(page.getByTestId('rare-today')).toBeVisible()
+})

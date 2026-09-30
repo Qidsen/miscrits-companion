@@ -1,13 +1,15 @@
 import type { MapInfo, Marker, Miscrit } from '../data/types'
 import { isAvailable } from './schedule'
+import { splitElement } from './miscrit'
 
 export function toLatLng(x: number, y: number, map: MapInfo): [number, number] {
   return [map.height * (1 - y / 100), map.width * (x / 100)]
 }
 
 export function markerVisible(mk: Marker, m: Miscrit | undefined,
-  o: { day: number | null; rarities: string[]; hideCaught: boolean; caught: Set<number> }): boolean {
+  o: { day: number | null; rarities: string[]; hideCaught: boolean; caught: Set<number>; elements?: string[] }): boolean {
   if (o.rarities.length && !o.rarities.includes(m?.rarity ?? mk.rarity)) return false
+  if (o.elements?.length && !splitElement(m?.element ?? mk.element).some(e => o.elements!.includes(e))) return false
   if (!m) return true
   if (o.hideCaught && o.caught.has(m.id)) return false
   if (o.day !== null) {

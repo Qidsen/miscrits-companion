@@ -9,15 +9,22 @@ import { ElementIcons } from '../components/ElementIcons'
 import { RarityBadge } from '../components/RarityBadge'
 import { StatBars } from '../components/StatBars'
 import { RegionMap } from '../components/RegionMap'
+import { MiscritAvatar } from '../components/MiscritAvatar'
 import { NotFound } from './NotFound'
 import './MiscritPage.css'
 
-export function MiscritPage() {
-  const t = useT()
+/** Remount per id so evolution choice and image state never leak between miscrits. */
+export function MiscritRoute() {
   const { id } = useParams()
+  return <MiscritPage key={id} id={id} />
+}
+
+function MiscritPage({ id }: { id?: string }) {
+  const t = useT()
   const { byId, relics, regionByName, markersByMiscrit } = useData()
   const m = byId.get(Number(id))
   const [evo, setEvo] = useState(0)
+  const [failedSprite, setFailedSprite] = useState<string | null>(null)
   const { caught, favorites, toggleCaught, toggleFavorite } = useCollection()
   if (!m) return <NotFound />
 
@@ -32,14 +39,16 @@ export function MiscritPage() {
     <div className={`container miscrit rarity-${m.rarity}`}>
       <section className="card miscrit-hero">
         <div className="miscrit-sprite">
-          <img src={spriteUrl(m.names[evo])} alt={m.names[evo]} onError={e => { (e.target as HTMLImageElement).style.visibility = 'hidden' }} />
+          {failedSprite === spriteUrl(m.names[evo])
+            ? <MiscritAvatar name={m.names[evo]} size={120} />
+            : <img src={spriteUrl(m.names[evo])} alt={m.names[evo]} onError={() => setFailedSprite(spriteUrl(m.names[evo]))} />}
         </div>
         <div className="miscrit-info">
           <div className="small muted">#{m.id}</div>
           <h1>{m.names[evo]}</h1>
           <div className="row"><RarityBadge rarity={m.rarity} /><ElementIcons element={m.element} size={22} /><span className="muted">{m.element}</span></div>
           <div className="row miscrit-evos">
-            {m.names.map((n, i) => <button key={n} className="chip" aria-pressed={evo === i} onClick={() => setEvo(i)}>{i + 1}. {n}</button>)}
+            {m.names.map((n, i) => <button key={i} className="chip" aria-pressed={evo === i} onClick={() => setEvo(i)}>{i + 1}. {n}</button>)}
           </div>
           <p className="muted">{m.descriptions[evo]}</p>
           <div className="row">

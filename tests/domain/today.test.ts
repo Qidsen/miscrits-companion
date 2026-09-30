@@ -29,3 +29,9 @@ test('miscritOfTheDay is stable within a game day and changes next day', () => {
   const days = new Set([0, 1, 2, 3, 4, 5, 6].map(i => miscritOfTheDay(list, new Date(Date.UTC(2026, 9, 1 + i, 12))).id))
   expect(days.size).toBeGreaterThan(1)
 })
+
+import { rareAvailable } from '../../src/domain/today'
+test('rareAvailable: Exotic/Legendary available that day, rarest first', () => {
+  expect(rareAvailable(list, 3).map(m => m.id)).toEqual([2])
+  expect(rareAvailable(list, 4).map(m => m.id)).toEqual([])
+})

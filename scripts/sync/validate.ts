@@ -18,3 +18,15 @@ export function validateSnapshot(next: Snapshot, prev: { miscrits: number; marke
     if (mk < prev.markers * 0.9) throw new Error(`validation: markers dropped ${prev.markers} → ${mk}`)
   }
 }
+
+/** Fail early with a clear message when an upstream source changes shape. */
+export function checkRawShape(raw: { game: unknown; organized: unknown; areaNames: unknown; relics: unknown; markers: unknown }): void {
+  const isObj = (v: unknown) => !!v && typeof v === 'object' && !Array.isArray(v)
+  if (!Array.isArray(raw.game)) throw new Error('shape: game miscrits is not an array')
+  if (!isObj(raw.organized)) throw new Error('shape: organized is not an object')
+  if (!isObj(raw.areaNames)) throw new Error('shape: area names is not an object')
+  if (!Array.isArray(raw.relics)) throw new Error('shape: relics is not an array')
+  if (!isObj(raw.markers)) throw new Error('shape: markers is not an object')
+  for (const [region, list] of Object.entries(raw.markers as Record<string, unknown>))
+    if (!Array.isArray(list)) throw new Error(`shape: markers ${region} is not an array`)
+}

@@ -3,7 +3,7 @@ import { useData } from '../data/DataProvider'
 import { regionLabel, useT } from '../i18n'
 import { useNow } from '../hooks/useNow'
 import { gameDay } from '../domain/schedule'
-import { exclusiveToday, groupAvailable, miscritOfTheDay } from '../domain/today'
+import { exclusiveToday, groupAvailable, miscritOfTheDay, rareAvailable } from '../domain/today'
 import { useCollection } from '../store/collection'
 import { DayPicker } from '../components/DayPicker'
 import { MiscritTile } from '../components/MiscritTile'
@@ -25,6 +25,7 @@ export function TodayPage() {
   const visible = useMemo(() => (hideCaught ? miscrits.filter(m => !caught.includes(m.id)) : miscrits), [miscrits, caught, hideCaught])
   const groups = useMemo(() => groupAvailable(visible, day), [visible, day])
   const exclusive = useMemo(() => exclusiveToday(visible, day), [visible, day])
+  const rare = useMemo(() => rareAvailable(visible, day), [visible, day])
   const total = new Set(groups.flatMap(g => g.zones.flatMap(z => z.miscrits.map(m => m.id)))).size
   const motd = miscritOfTheDay(miscrits, now)
 
@@ -45,6 +46,13 @@ export function TodayPage() {
         <DayPicker value={day} today={today} onChange={d => setPicked(d === today ? null : d)} />
         <label className="chip"><input type="checkbox" checked={hideCaught} onChange={e => setHideCaught(e.target.checked)} /> {t('today.hideCaught')}</label>
       </div>
+
+      {rare.length > 0 && (
+        <section className="card today-section highlight" data-testid="rare-today">
+          <h2>{t('today.rareToday')}</h2>
+          <div className="grid-tiles">{rare.map(m => <MiscritTile key={m.id} m={m} />)}</div>
+        </section>
+      )}
 
       {exclusive.length > 0 && (
         <section className="card today-section highlight">

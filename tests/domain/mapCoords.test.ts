@@ -27,3 +27,10 @@ test('day filter uses spawns in the marker region only', () => {
   const m2 = { ...m, spawns: [{ region: 'Moon', zone: '1', days: 'all' }, { region: 'Forest', zone: '1', days: [2] }] } as unknown as Miscrit
   expect(markerVisible(mk, m2, { ...opts, day: 3 })).toBe(false)
 })
+
+test('element filter matches dual elements', () => {
+  const fw = { ...m, element: 'FireWind' } as unknown as Miscrit
+  expect(markerVisible(mk, fw, { ...opts, elements: ['Wind'] })).toBe(true)
+  expect(markerVisible(mk, fw, { ...opts, elements: ['Water'] })).toBe(false)
+  expect(markerVisible({ ...mk, element: 'Water' }, undefined, { ...opts, elements: ['Water'] })).toBe(true)
+})

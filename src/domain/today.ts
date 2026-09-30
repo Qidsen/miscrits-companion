@@ -22,6 +22,11 @@ export function groupAvailable(miscrits: Miscrit[], day: number) {
   }))
 }
 
+export function rareAvailable(miscrits: Miscrit[], day: number): Miscrit[] {
+  return miscrits.filter(m => (m.rarity === 'Exotic' || m.rarity === 'Legendary') && m.spawns.some(s => s.days === 'all' || s.days.includes(day)))
+    .sort(byRarityThenName)
+}
+
 export function exclusiveToday(miscrits: Miscrit[], day: number): Miscrit[] {
   return miscrits.filter(m => m.spawns.length > 0
     && m.spawns.every(s => s.days !== 'all')

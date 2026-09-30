@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useData } from '../data/DataProvider'
 import { regionLabel, useT, type I18nKey } from '../i18n'
@@ -19,6 +19,8 @@ export function DexPage() {
   const [params, setParams] = useSearchParams()
   const f = paramsToFilter(params)
   const set = (over: Partial<DexFilter>) => setParams(filterToParams({ ...f, ...over }), { replace: true })
+  // The router applies URL updates in a transition, so a URL-controlled input lags and drops keys.
+  const [q, setQ] = useState(f.q)
   const caught = useCollection(s => s.caught)
   const favorites = useCollection(s => s.favorites)
   const result = useMemo(() => filterMiscrits(miscrits, paramsToFilter(params), { caught: new Set(caught), favorites: new Set(favorites) }),
@@ -27,7 +29,7 @@ export function DexPage() {
   return (
     <div className="container dex">
       <div className="card dex-filters">
-        <input className="input" placeholder={t('dex.search')} value={f.q} onChange={e => set({ q: e.target.value })} data-testid="dex-search" />
+        <input className="input" placeholder={t('dex.search')} value={q} onChange={e => { setQ(e.target.value); set({ q: e.target.value }) }} data-testid="dex-search" />
         <div className="row">
           {BASE_ELEMENTS.map(el => (
             <button key={el} className="chip" aria-pressed={f.elements.includes(el)} onClick={() => set({ elements: toggle(f.elements, el) })}>
@@ -55,7 +57,7 @@ export function DexPage() {
             {(['id', 'name', 'rarity', 'spd', 'hp'] as SortKey[]).map(s => <option key={s} value={s}>{t('dex.sort')}: {t(`dex.sort.${s}` as I18nKey)}</option>)}
           </select>
           <label className="chip"><input type="checkbox" checked={f.favorites} onChange={e => set({ favorites: e.target.checked })} /> {t('dex.favorites')}</label>
-          <button className="btn" onClick={() => setParams(filterToParams(EMPTY_FILTER))}>{t('dex.reset')}</button>
+          <button className="btn" onClick={() => { setQ(''); setParams(filterToParams(EMPTY_FILTER), { replace: true }) }}>{t('dex.reset')}</button>
         </div>
       </div>
       <div className="muted dex-count" data-testid="dex-count">{t('dex.results', { n: result.length })}</div>

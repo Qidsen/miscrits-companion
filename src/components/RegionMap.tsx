@@ -4,6 +4,7 @@ import { ImageOverlay, MapContainer, Marker as LMarker, Popup, useMap } from 're
 import { Link } from 'react-router-dom'
 import type { Marker, Region } from '../data/types'
 import { avatarUrl, mapImageUrl } from '../data/images'
+import { escapeHtml, safeClass } from '../data/escape'
 import { useData } from '../data/DataProvider'
 import { dayShort, useT } from '../i18n'
 import { spawnDays } from '../domain/schedule'
@@ -14,7 +15,7 @@ import './RegionMap.css'
 function icon(mk: Marker, rarity: string, focused: boolean) {
   return L.divIcon({
     className: '',
-    html: `<div class="map-pin rarity-${rarity}${focused ? ' map-pin-focus' : ''}"><img src="${avatarUrl(mk.name)}" alt="" onerror="this.style.visibility='hidden'"/></div>`,
+    html: `<div class="map-pin rarity-${safeClass(rarity)}${focused ? ' map-pin-focus' : ''}" title="${escapeHtml(mk.name)}"><img src="${escapeHtml(avatarUrl(mk.name))}" alt="${escapeHtml(mk.name)}" onerror="this.style.visibility='hidden'"/></div>`,
     iconSize: [36, 36], iconAnchor: [18, 18], popupAnchor: [0, -18],
   })
 }

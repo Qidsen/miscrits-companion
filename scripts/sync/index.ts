@@ -5,7 +5,7 @@ import { fetchJson } from './http'
 import { syncMaps } from './maps'
 import { normalize, type RawInput } from './normalize'
 import { AREA_NAMES, GAME_JSON, MAP_FILES, ORGANIZED, RELICS, markersUrl } from './sources'
-import { markerCount, validateSnapshot } from './validate'
+import { checkRawShape, markerCount, validateSnapshot } from './validate'
 
 const ROOT = process.cwd()
 const RAW = join(ROOT, 'data-raw')
@@ -15,12 +15,15 @@ const forceMaps = process.argv.includes('--maps')
 const readJson = <T>(p: string): T | null => (existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) as T : null)
 const writeJson = (p: string, v: unknown) => writeFileSync(p, JSON.stringify(v) + '\n')
 
+/** Fresh raw copies, written to data-raw only after the snapshot validates. */
+const pendingRaw = new Map<string, unknown>()
+
 /** Fetch a source; on failure fall back to the last committed raw copy. */
 async function source<T>(name: string, url: string, warnings: string[], required: boolean): Promise<T> {
   const path = join(RAW, `${name}.json`)
   try {
     const data = await fetchJson<T>(url)
-    writeJson(path, data)
+    pendingRaw.set(path, data)
     return data
   } catch (e) {
     const prev = readJson<T>(path)
@@ -38,12 +41,13 @@ async function main() {
   const game = await source<RawInput['game']>('game-miscrits', GAME_JSON, warnings, true)
   const organized = await source<RawInput['organized']>('organized', ORGANIZED, warnings, false)
   const areaNames = await source<RawInput['areaNames']>('area-names', AREA_NAMES, warnings, false)
-  const relics = (await source<{ relics: RawInput['relics'] }>('relics', RELICS, warnings, false)).relics
+  const relics = (await source<{ relics: RawInput['relics'] }>('relics', RELICS, warnings, false))?.relics
   const markers: RawInput['markers'] = {}
   for (const region of Object.keys(MAP_FILES)) {
     const slug = region.toLowerCase().replace(/\s+/g, '-')
-    markers[region] = (await source<{ markers: RawInput['markers'][string] }>(`markers-${slug}`, markersUrl(region), warnings, false)).markers
+    markers[region] = (await source<{ markers: RawInput['markers'][string] }>(`markers-${slug}`, markersUrl(region), warnings, false))?.markers
   }
+  checkRawShape({ game, organized, areaNames, relics, markers })
   const mapSizes = await syncMaps(join(OUT, 'maps'), forceMaps, warnings)
 
   const snap = normalize({ game, organized, areaNames, markers, relics, mapSizes })
@@ -57,6 +61,7 @@ async function main() {
     counts: { miscrits: snap.miscrits.length, markers: markerCount(snap), relics: snap.relics.length },
     warnings,
   }
+  for (const [path, data] of pendingRaw) writeJson(path, data)
   writeJson(join(OUT, 'miscrits.json'), snap.miscrits)
   writeJson(join(OUT, 'relics.json'), snap.relics)
   writeJson(join(OUT, 'regions.json'), snap.regions)

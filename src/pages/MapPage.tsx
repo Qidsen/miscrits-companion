@@ -4,7 +4,8 @@ import { useData } from '../data/DataProvider'
 import { regionLabel, useT, type I18nKey } from '../i18n'
 import { gameDay } from '../domain/schedule'
 import { markerVisible } from '../domain/mapCoords'
-import { RARITY_ORDER } from '../domain/miscrit'
+import { BASE_ELEMENTS, RARITY_ORDER } from '../domain/miscrit'
+import { elementIconUrl } from '../data/images'
 import { groupAvailable } from '../domain/today'
 import { useCollection } from '../store/collection'
 import { DayPicker } from '../components/DayPicker'
@@ -20,15 +21,16 @@ export function MapPage() {
   const today = gameDay(new Date())
   const [day, setDay] = useState<number | null>(today)
   const [rarities, setRarities] = useState<string[]>([])
+  const [elements, setElements] = useState<string[]>([])
   const [hideCaught, setHideCaught] = useState(false)
   const caught = useCollection(s => s.caught)
 
   const regionName = param ? decodeURIComponent(param) : regions.find(r => r.map)?.name
   const region = regionName ? regionByName.get(regionName) : undefined
   const visible = useMemo(() => {
-    const opts = { day, rarities, hideCaught, caught: new Set(caught) }
+    const opts = { day, rarities, elements, hideCaught, caught: new Set(caught) }
     return (markers[regionName ?? ''] ?? []).filter(mk => markerVisible(mk, mk.miscritId !== null ? byId.get(mk.miscritId) : undefined, opts))
-  }, [markers, regionName, day, rarities, hideCaught, caught, byId])
+  }, [markers, regionName, day, rarities, elements, hideCaught, caught, byId])
   const zones = useMemo(() => (day === null ? [] : groupAvailable(miscrits, day).find(g => g.region === regionName)?.zones ?? []), [miscrits, day, regionName])
 
   if (!region && param) return <Navigate to="/map" replace />
@@ -58,6 +60,14 @@ export function MapPage() {
       <section className="map-main">
         <div className="map-toolbar card">
           <DayPicker value={day} today={today} onChange={setDay} anyLabel={t('map.anyDay')} />
+          <div className="row">
+            {BASE_ELEMENTS.map(el => (
+              <button key={el} className="chip" aria-pressed={elements.includes(el)} title={el}
+                onClick={() => setElements(es => (es.includes(el) ? es.filter(x => x !== el) : [...es, el]))}>
+                <img src={elementIconUrl(el)} alt={el} width={16} height={16} />
+              </button>
+            ))}
+          </div>
           <div className="row">
             {RARITY_ORDER.map(r => (
               <button key={r} className={`chip rarity-${r}`} style={{ color: 'var(--r)' }} aria-pressed={rarities.includes(r)}

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { safeStorage } from './safeStorage'
+import { sanitizeCollection } from './sanitize'
 
 interface CollectionState {
   caught: number[]; favorites: number[]
@@ -12,4 +13,7 @@ export const useCollection = create<CollectionState>()(persist(set => ({
   caught: [], favorites: [],
   toggleCaught: id => set(s => ({ caught: toggle(s.caught, id) })),
   toggleFavorite: id => set(s => ({ favorites: toggle(s.favorites, id) })),
-}), { name: 'mc-collection', storage: createJSONStorage(() => safeStorage) }))
+}), {
+  name: 'mc-collection', storage: createJSONStorage(() => safeStorage),
+  merge: (persisted, current) => ({ ...current, ...sanitizeCollection(persisted) }),
+}))

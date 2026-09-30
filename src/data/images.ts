@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.worldofmiscrits.com'
-export const slug = (name: string) => name.toLowerCase().replace(/\s+/g, '_')
+export const slug = (name: string) => encodeURIComponent(name.toLowerCase().replace(/\s+/g, '_'))
 export const avatarUrl = (name: string) => `${CDN}/avatars/${slug(name)}_avatar.png`
 export const spriteUrl = (name: string) => `${CDN}/miscrits/${slug(name)}_back.png`
 export const elementIconUrl = (base: string) => `https://worldofmiscrits.com/${base.toLowerCase()}.png`
