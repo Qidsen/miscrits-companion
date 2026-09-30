@@ -16,10 +16,18 @@ function kyivWall(date: Date) {
 }
 
 /** Game weekday (0 = Sunday): Kyiv calendar date, shifted back one day before 03:00. */
-export function gameDay(now: Date): number {
+function gameDayUtc(now: Date): Date {
   const w = kyivWall(now)
-  const dayUtc = Date.UTC(w.y, w.m - 1, w.d) - (w.h < RESET_HOUR ? 86_400_000 : 0)
-  return new Date(dayUtc).getUTCDay()
+  return new Date(Date.UTC(w.y, w.m - 1, w.d) - (w.h < RESET_HOUR ? 86_400_000 : 0))
+}
+
+export function gameDay(now: Date): number {
+  return gameDayUtc(now).getUTCDay()
+}
+
+/** Calendar date (YYYY-MM-DD) of the current game day. */
+export function gameDate(now: Date): string {
+  return gameDayUtc(now).toISOString().slice(0, 10)
 }
 
 /** First instant after `now` where gameDay changes (binary search, 1 s precision). */

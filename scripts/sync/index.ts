@@ -1,7 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { Meta } from '../../src/data/types'
+import type { ChangeEntry, Marker, Meta, Miscrit, Relic } from '../../src/data/types'
 import { fetchJson } from './http'
+import { diffSnapshots, prependChange } from './changelog'
 import { syncMaps } from './maps'
 import { normalize, type RawInput } from './normalize'
 import { AREA_NAMES, GAME_JSON, MAP_FILES, ORGANIZED, RELICS, markersUrl } from './sources'
@@ -61,7 +62,19 @@ async function main() {
     counts: { miscrits: snap.miscrits.length, markers: markerCount(snap), relics: snap.relics.length, perRegion: perRegionCounts(snap) },
     warnings,
   }
+  const prevMiscrits = readJson<Miscrit[]>(join(OUT, 'miscrits.json'))
+  const prev = prevMiscrits ? {
+    miscrits: prevMiscrits, relics: readJson<Relic[]>(join(OUT, 'relics.json')) ?? [],
+    markers: readJson<Record<string, Marker[]>>(join(OUT, 'markers.json')) ?? {},
+  } : null
+  const oldLog = readJson<ChangeEntry[]>(join(OUT, 'changelog.json'))
+  // no log yet → start the history with an initial entry, even if older data exists
+  const change = diffSnapshots(oldLog ? prev : null, snap, meta.syncedAt)
+  const log = prependChange(oldLog ?? [], change)
+  if (change) console.log(change.initial ? 'changelog: initial entry' : `changelog: +${change.added?.length} miscrits, ${change.spawnChanged?.length} spawn changes`)
+
   for (const [path, data] of pendingRaw) writeJson(path, data)
+  writeJson(join(OUT, 'changelog.json'), log)
   writeJson(join(OUT, 'miscrits.json'), snap.miscrits)
   writeJson(join(OUT, 'relics.json'), snap.relics)
   writeJson(join(OUT, 'regions.json'), snap.regions)

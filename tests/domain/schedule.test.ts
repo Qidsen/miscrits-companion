@@ -82,3 +82,10 @@ test('formatClock shows m:ss and hours only when needed', () => {
   expect(formatClock(65_000)).toBe('01:05')
   expect(formatClock(3_725_000)).toBe('1:02:05')
 })
+
+import { gameDate } from '../../src/domain/schedule'
+test('gameDate is the Kyiv date of the game day', () => {
+  expect(gameDate(new Date('2026-09-29T23:59:59Z'))).toBe('2026-09-29')
+  expect(gameDate(new Date('2026-09-30T00:00:00Z'))).toBe('2026-09-30')
+  expect(gameDate(new Date('2026-12-02T00:30:00Z'))).toBe('2026-12-01') // winter: reset at 01:00Z
+})

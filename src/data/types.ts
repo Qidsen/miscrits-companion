@@ -33,3 +33,9 @@ export interface Snapshot {
   miscrits: Miscrit[]; relics: Relic[]; regions: Region[]
   markers: Record<string, Marker[]>; warnings: string[]
 }
+export interface ChangeEntry {
+  date: string; initial?: boolean
+  added?: number[]; removed?: { id: number; name: string }[]; spawnChanged?: number[]
+  markersAdded?: { region: string; count: number; miscritIds: number[] }[]
+  relicsAdded?: number[]; relicsChanged?: number[]
+}
