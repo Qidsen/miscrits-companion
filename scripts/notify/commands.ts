@@ -23,6 +23,8 @@ function help(siteUrl: string) {
     '2. Скопируй там команду /hunt … и отправь мне.',
     '',
     '/today — сводка сейчас · /stop — отписаться',
+    '',
+    '✦ Сайт и бот сделал Qidsen (Yaroslav Vovnenko)',
   ].join('\n')
 }
 

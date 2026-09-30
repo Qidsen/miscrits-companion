@@ -1,0 +1,15 @@
+.footer { border-top: 1px solid var(--line); margin-top: 32px; background: linear-gradient(180deg, transparent, rgba(255, 181, 71, .04)); }
+.footer-inner { max-width: 1320px; margin: 0 auto; padding: 20px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.footer-info { display: flex; flex-direction: column; gap: 2px; }
+.author-badge { display: inline-flex; align-items: center; gap: 12px; padding: 8px 16px 8px 8px; border-radius: 999px; background: var(--glass);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: 0 0 24px -10px var(--accent); transition: transform .2s, box-shadow .2s; }
+.author-badge:hover { transform: translateY(-2px); box-shadow: 0 0 28px -6px var(--accent); }
+.author-mark { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 17px; color: #1b1206;
+  background: linear-gradient(135deg, #ffd84a, #ff8a3d); }
+.author-text { display: flex; flex-direction: column; line-height: 1.15; }
+.author-label { font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); }
+.author-name { font-size: 14px; color: var(--text-2); }
+.author-name b { font-family: var(--font-head); font-size: 16px; color: transparent; background: linear-gradient(135deg, #ffe08a, #ff8a3d); -webkit-background-clip: text; background-clip: text; }
+.author-heart { color: #ff6b9a; font-size: 16px; animation: heartbeat 1.6s ease-in-out infinite; }
+@keyframes heartbeat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.25); } 30% { transform: scale(1); } }
+@media (max-width: 860px) { .footer-inner { padding-bottom: 90px; } }

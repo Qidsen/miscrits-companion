@@ -1,6 +1,8 @@
 # Miscrits Companion
 
-Personal companion site for Miscrits: World of Creatures — today's spawns, interactive map with zones,
+Companion site for Miscrits: World of Creatures, created by **Qidsen (Yaroslav Vovnenko)** — https://qidsen.github.io/miscrits-companion/.
+
+Today's spawns — today's spawns, interactive map with zones,
 Miscritdex, week calendar, relics, collection tracking, team builder, damage calculator, element chart,
 compare, hunt list and mini games. RU/EN.
 

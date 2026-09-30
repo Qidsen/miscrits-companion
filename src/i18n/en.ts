@@ -263,4 +263,5 @@ export const en = {
   'tg.step1': "1. Open the bot",
   'tg.step2': "2. Send it this command",
   'tg.note': "After changing the list, send the new command again. The bot answers within ~15–30 min.",
+  'footer.madeBy': "Created by",
 } as const
