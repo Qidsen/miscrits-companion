@@ -7,6 +7,8 @@ import { TodayPage } from './pages/TodayPage'
 import { DexPage } from './pages/DexPage'
 import { MapPage } from './pages/MapPage'
 import { MiscritRoute } from './pages/MiscritPage'
+import { WeekPage } from './pages/WeekPage'
+import { RelicsPage } from './pages/RelicsPage'
 import { translate } from './i18n'
 import { useSettings } from './store/settings'
 
@@ -26,6 +28,8 @@ export default function App() {
             <Route path="/map" element={<MapPage />} />
             <Route path="/map/:region" element={<MapPage />} />
             <Route path="/m/:id" element={<MiscritRoute />} />
+            <Route path="/week" element={<WeekPage />} />
+            <Route path="/relics" element={<RelicsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>

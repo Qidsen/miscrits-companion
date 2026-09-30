@@ -1,0 +1,14 @@
+.relics-filters { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.relic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.relic-card { padding: 16px; display: flex; flex-direction: column; gap: 8px; transition: transform .15s, border-color .15s; }
+.relic-card:hover { transform: translateY(-2px); border-color: var(--line-2); }
+.relic-card-head { display: flex; gap: 12px; align-items: center; }
+.relic-card-head img { border-radius: 12px; background: radial-gradient(circle, rgba(255, 255, 255, .12), transparent 70%); }
+.relic-card h3 { margin: 0; }
+.relic-card p { margin: 0; }
+.relic-special { color: var(--accent); font-weight: 700; }
+.relic-users { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.relic-effects { display: flex; gap: 4px; flex-wrap: wrap; }
+.relic-effects span { font-size: 11px; font-weight: 800; padding: 1px 6px; border-radius: 5px; }
+.relic-effects .pos { background: rgba(90, 209, 122, .15); color: var(--ok); }
+.relic-effects .neg { background: rgba(255, 107, 107, .15); color: var(--danger); }
