@@ -19,6 +19,7 @@ const ElementsPage = lazy(() => import('./pages/ElementsPage').then(m => ({ defa
 const CalculatorPage = lazy(() => import('./pages/CalculatorPage').then(m => ({ default: m.CalculatorPage })))
 const TeamPage = lazy(() => import('./pages/TeamPage').then(m => ({ default: m.TeamPage })))
 const ComparePage = lazy(() => import('./pages/ComparePage').then(m => ({ default: m.ComparePage })))
+const NewsPage = lazy(() => import('./pages/NewsPage').then(m => ({ default: m.NewsPage })))
 const HuntPage = lazy(() => import('./pages/HuntPage').then(m => ({ default: m.HuntPage })))
 const GamesHub = lazy(() => import('./pages/games/GamesHub').then(m => ({ default: m.GamesHub })))
 const SilhouetteGame = lazy(() => import('./pages/games/SilhouetteGame').then(m => ({ default: m.SilhouetteGame })))
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="/team" element={<TeamPage />} />
             <Route path="/compare" element={<ComparePage />} />
             <Route path="/hunt" element={<HuntPage />} />
+            <Route path="/news" element={<NewsPage />} />
             <Route path="/games" element={<GamesHub />} />
             <Route path="/games/silhouette" element={<SilhouetteGame />} />
             <Route path="/games/memory" element={<MemoryGame />} />

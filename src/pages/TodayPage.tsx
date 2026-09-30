@@ -28,7 +28,7 @@ function BigCountdown({ reset }: { reset: Date }) {
 
 export function TodayPage() {
   const t = useT()
-  const { miscrits, regionByName } = useData()
+  const { miscrits, regionByName, changelog, byId } = useData()
   const { day: today, nextReset } = useGameDay()
   const [picked, setPicked] = useState<number | null>(null)
   const day = picked ?? today
@@ -40,6 +40,11 @@ export function TodayPage() {
   const groups = useMemo(() => groupAvailable(visible, day), [visible, day])
   const exclusive = useMemo(() => exclusiveToday(visible, day), [visible, day])
   const rare = useMemo(() => rareAvailable(visible, day), [visible, day])
+  const weekNews = useMemo(() => {
+    const since = Date.now() - 7 * 86_400_000
+    const ids = changelog.filter(e => !e.initial && Date.parse(e.date) >= since).flatMap(e => [...(e.added ?? []), ...(e.spawnChanged ?? [])])
+    return [...new Set(ids)].map(id => byId.get(id)).filter((m): m is NonNullable<typeof m> => !!m)
+  }, [changelog, byId])
   const total = new Set(groups.flatMap(g => g.zones.flatMap(z => z.miscrits.map(m => m.id)))).size
   // re-pick when the game day changes
   const motd = useMemo(() => miscritOfTheDay(miscrits, new Date()), [miscrits, today]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -68,6 +73,13 @@ export function TodayPage() {
         <label className="chip"><input type="checkbox" checked={hideCaught} onChange={e => setHideCaught(e.target.checked)} /> {t('today.hideCaught')}</label>
         {picked !== null && <button className="btn" onClick={() => setPicked(null)}>{t('today.backToToday')}</button>}
       </div>
+
+      {weekNews.length > 0 && (
+        <section className="today-section news-week">
+          <h2 className="section-title">📰 {t('news.week')} <span className="count">{weekNews.length}</span> <Link to="/news" className="small" style={{ marginLeft: 'auto', color: 'var(--accent)' }}>{t('news.all')}</Link></h2>
+          <div className="grid-cards">{weekNews.map(m => <MiscritCard key={m.id} m={m} size="mini" showDays day={day} />)}</div>
+        </section>
+      )}
 
       {rare.length > 0 && (
         <section className="today-section" data-testid="rare-today">

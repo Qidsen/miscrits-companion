@@ -9,6 +9,8 @@ export const NAV: NavItem[] = [
   { to: '/week', key: 'nav.week', icon: '📅', primary: true },
   { to: '/team', key: 'nav.team', icon: '⚔️', primary: true },
   { to: '/games', key: 'nav.games', icon: '🎮', primary: true },
+  { to: '/news', key: 'nav.news', icon: '📰', primary: false },
+  { to: '/tournament', key: 'nav.tournament', icon: '🏅', primary: false },
   { to: '/hunt', key: 'nav.hunt', icon: '🎯', primary: false },
   { to: '/collection', key: 'nav.collection', icon: '🏆', primary: false },
   { to: '/relics', key: 'nav.relics', icon: '💎', primary: false },

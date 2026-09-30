@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import type { Marker, Meta, Miscrit, Region, Relic } from './types'
+import type { ChangeEntry, Marker, Meta, Miscrit, Region, Relic } from './types'
 import { dataUrl } from './images'
 import { sortRegions } from '../domain/miscrit'
 
@@ -7,6 +7,7 @@ export interface AppData {
   miscrits: Miscrit[]; byId: Map<number, Miscrit>; relics: Map<number, Relic>
   regions: Region[]; regionByName: Map<string, Region>
   markers: Record<string, Marker[]>; markersByMiscrit: Map<number, Marker[]>; meta: Meta
+  changelog: ChangeEntry[]
 }
 
 const Ctx = createContext<AppData | null>(null)
@@ -18,9 +19,11 @@ async function get<T>(file: string): Promise<T> {
 }
 
 export async function loadData(): Promise<AppData> {
-  const [miscrits, relics, regions, markers, meta] = await Promise.all([
+  const [miscrits, relics, regions, markers, meta, changelog] = await Promise.all([
     get<Miscrit[]>('miscrits.json'), get<Relic[]>('relics.json'), get<Region[]>('regions.json'),
     get<Record<string, Marker[]>>('markers.json'), get<Meta>('meta.json'),
+    // optional: older deployments have no changelog yet
+    get<ChangeEntry[]>('changelog.json').catch(() => [] as ChangeEntry[]),
   ])
   const order = sortRegions(regions.map(r => r.name))
   const sorted = order.map(n => regions.find(r => r.name === n)!)
@@ -32,6 +35,7 @@ export async function loadData(): Promise<AppData> {
   return {
     miscrits, byId: new Map(miscrits.map(m => [m.id, m])), relics: new Map(relics.map(r => [r.id, r])),
     regions: sorted, regionByName: new Map(sorted.map(r => [r.name, r])), markers, markersByMiscrit, meta,
+    changelog: Array.isArray(changelog) ? changelog : [],
   }
 }
 
