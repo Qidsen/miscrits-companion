@@ -4,6 +4,7 @@ import type { Miscrit } from '../data/types'
 import { useT, type I18nKey } from '../i18n'
 import { spawnDays } from '../domain/schedule'
 import { elementGradient } from '../styles/elements'
+import { toggleCaught } from '../store/actions'
 import { useCollection } from '../store/collection'
 import { useHunt } from '../store/hunt'
 import { ElementIcons } from './ElementIcons'
@@ -24,7 +25,6 @@ interface Props {
 export function MiscritCard({ m, size = 'md', showDays, day, region, highlighted, quickMark, onHover, onClick, extra }: Props) {
   const t = useT()
   const caught = useCollection(s => s.caught.includes(m.id))
-  const toggleCaught = useCollection(s => s.toggleCaught)
   const hunted = useHunt(s => s.ids.includes(m.id))
   const toggleHunt = useHunt(s => s.toggle)
   const days = spawnDays(region ? m.spawns.filter(s => s.region === region) : m.spawns)
@@ -57,15 +57,24 @@ export function MiscritCard({ m, size = 'md', showDays, day, region, highlighted
       </button>
     )
   }
-  const star = size !== 'xs' && (
-    <button type="button" className={`mcard-hunt${hunted ? ' on' : ''}`} title={t(hunted ? 'hunt.added' : 'hunt.add')} aria-label={t(hunted ? 'hunt.added' : 'hunt.add')}
-      aria-pressed={hunted} onClick={() => toggleHunt(m.id)}>{hunted ? '★' : '☆'}</button>
-  )
-  // the link and the hunt button are siblings: no interactive element nested inside a link
+  if (size === 'xs') {
+    return (
+      <div className={cls} style={style} {...hover}>
+        <Link to={`/m/${m.id}`} className="mcard-link" title={m.names[0]} data-testid="miscrit-tile" onClick={onClick}>{body}</Link>
+        {badge}
+      </div>
+    )
+  }
+  // two separate actions: 🎯 "want to catch" and ✓ "already caught" (★ stays reserved for favourites)
+  const huntLabel = t(hunted ? 'hunt.added' : 'hunt.add'), caughtLabel = t(caught ? 'm.caught' : 'm.catch')
+  // the link and the buttons are siblings: no interactive element nested inside a link
   return (
     <div className={cls} style={style} {...hover}>
       <Link to={`/m/${m.id}`} className="mcard-link" title={m.names[0]} data-testid="miscrit-tile" onClick={onClick}>{body}</Link>
-      {badge}{star}
+      <button type="button" className={`mcard-act mcard-hunt${hunted ? ' on' : ''}`} title={huntLabel} aria-label={huntLabel}
+        aria-pressed={hunted} onClick={() => toggleHunt(m.id)} data-testid="card-hunt">🎯</button>
+      <button type="button" className={`mcard-act mcard-caught-btn${caught ? ' on' : ''}`} title={caughtLabel} aria-label={caughtLabel}
+        aria-pressed={caught} onClick={() => toggleCaught(m.id)} data-testid="card-caught">✓</button>
     </div>
   )
 }
