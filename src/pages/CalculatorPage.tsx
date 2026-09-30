@@ -1,8 +1,8 @@
-import { useMemo, useState, type CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import type { Miscrit, Relic } from '../data/types'
 import { useData } from '../data/DataProvider'
-import { useT, type I18nKey } from '../i18n'
+import { elementLabel, useT, type I18nKey } from '../i18n'
 import { damage, isDamaging } from '../domain/damage'
 import { FORMULA } from '../domain/formulaConfig'
 import { STAT_KEYS, statsAt, withBuffs, withRelics, type Stats } from '../domain/stats'
@@ -24,6 +24,17 @@ const parseSide = (s: string | null, known: Map<number, Miscrit>): Side | null =
   return { id: n, level, relics: r === 'r' }
 }
 const fmtSide = (s: Side) => `${s.id}.${s.level}${s.relics ? '.r' : ''}`
+
+/** Number input that keeps the raw text, so "-" and "" are allowed while typing. */
+function BuffInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [text, setText] = useState(String(value))
+  return <input className="input" inputMode="numeric" value={text} onChange={e => {
+    const v = e.target.value
+    if (!/^-?\d*$/.test(v)) return
+    setText(v)
+    onChange(Number(v) || 0)
+  }} />
+}
 
 function Fighter({ title, side, onChange, buffs, setBuffs, stats }: {
   title: string; side: Side | null; onChange: (s: Side | null) => void
@@ -51,7 +62,7 @@ function Fighter({ title, side, onChange, buffs, setBuffs, stats }: {
           <div className="buffs">
             {STAT_KEYS.filter(k => k !== 'hp').map(k => (
               <label key={k}>{t(`stat.${k}` as I18nKey)}
-                <input className="input" type="number" value={buffs[k] ?? 0} onChange={e => setBuffs({ ...buffs, [k]: Number(e.target.value) || 0 })} /></label>
+                <BuffInput value={buffs[k] ?? 0} onChange={v => setBuffs({ ...buffs, [k]: v })} /></label>
             ))}
           </div>
         </>
@@ -81,11 +92,10 @@ export function CalculatorPage() {
     return { m, stats: withBuffs(st, buffs) }
   }
   const A = build(a, buffA), D = build(d, buffD)
-  const rows = useMemo(() => {
-    if (!A || !D) return []
+  const rows = !A || !D ? [] : (() => {
     return A.m.abilities.filter(isDamaging).map(ab => ({ ab, r: damage(ab, { element: A.m.element, stats: A.stats }, { element: D.m.element, stats: D.stats })! }))
       .sort((x, y) => y.r.avg - x.r.avg)
-  }, [A, D])
+  })()
   const top = rows[0]?.r.max ?? 1
 
   return (
@@ -102,7 +112,7 @@ export function CalculatorPage() {
                   <tbody>
                     {rows.map(({ ab, r }) => (
                       <tr key={ab.id}>
-                        <td><b>{ab.name}</b><div className="tiny" style={{ color: elementColor(ab.element), fontWeight: 800 }}>{ab.element} · AP {ab.ap}</div></td>
+                        <td><b>{ab.name}</b><div className="tiny" style={{ color: elementColor(ab.element), fontWeight: 800 }}>{elementLabel(t, ab.element)} · AP {ab.ap}</div></td>
                         <td><span className={`mult-pill ${r.multiplier > 1 ? 'strong' : r.multiplier < 1 ? 'weak' : 'neutral'}`}>×{r.multiplier}</span></td>
                         <td><b>{r.min}–{r.max}</b> <span className="muted small">({r.avg})</span><div className="dmg-bar" style={{ width: `${(r.max / top) * 100}%` }} /></td>
                         <td><b>{r.hitsToKo}</b></td>

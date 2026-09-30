@@ -7,6 +7,8 @@ export interface ZoneShape {
   zone: string; name: string; color: string
   /** percent coordinates of the map image (x from left, y from top) */
   center: Pt; hull: Pt[]; radius: number; markerIds: string[]
+  /** circle radius in map pixels (x and y percents scale differently on non-square maps) */
+  radiusPx: number
 }
 
 const cross = (o: Pt, a: Pt, b: Pt) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
@@ -61,6 +63,9 @@ export function zoneShapes(region: Region, markers: Marker[], byId: Map<number, 
     const pts = list.map(mk => [mk.x, mk.y] as Pt)
     const center: Pt = [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length]
     const far = Math.max(0, ...pts.map(p => Math.hypot(p[0] - center[0], p[1] - center[1])))
+    const w = region.map?.width ?? 100, h = region.map?.height ?? 100
+    const padPx = (pad / 100) * Math.min(w, h)
+    const farPx = Math.max(0, ...pts.map(p => Math.hypot(((p[0] - center[0]) / 100) * w, ((p[1] - center[1]) / 100) * h)))
     const raw = convexHull(pts)
     const isPolygon = raw.length >= 3
     return {
@@ -68,6 +73,7 @@ export function zoneShapes(region: Region, markers: Marker[], byId: Map<number, 
       hull: isPolygon ? padHull(raw, center, pad) : [],
       radius: far + pad * (pts.length === 1 ? 1.5 : 1),
       markerIds: list.map(mk => mk.id),
+      radiusPx: farPx + padPx * (pts.length === 1 ? 1.5 : 1),
     }
   })
 }

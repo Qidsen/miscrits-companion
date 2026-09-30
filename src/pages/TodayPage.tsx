@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../data/DataProvider'
 import { mapImageUrl } from '../data/images'
-import { regionLabel, useT, type I18nKey } from '../i18n'
+import { zoneLabel, regionLabel, useT, type I18nKey } from '../i18n'
 import { useGameDay } from '../hooks/useGameDay'
 import { useNow } from '../hooks/useNow'
 import { formatDuration } from '../domain/schedule'
@@ -32,6 +32,7 @@ export function TodayPage() {
   const { day: today, nextReset } = useGameDay()
   const [picked, setPicked] = useState<number | null>(null)
   const day = picked ?? today
+  useEffect(() => { setPicked(p => (p === today ? null : p)) }, [today]) // the picked day became today at reset
   const [hideCaught, setHideCaught] = useState(false)
   const caught = useCollection(s => s.caught)
 
@@ -95,7 +96,7 @@ export function TodayPage() {
               {g.zones.map(z => (
                 <div key={z.zone} className="today-zone">
                   <h3 className="zone-title"><span className="zone-dot" style={{ background: region ? zoneColor(region, z.zone) : undefined }} />
-                    {region?.zones[z.zone] ?? z.zone} <span className="count">{z.miscrits.length}</span></h3>
+                    {zoneLabel(t, region?.zones[z.zone] ?? `Zone ${z.zone}`)} <span className="count">{z.miscrits.length}</span></h3>
                   <div className="grid-cards">{z.miscrits.map(m => <MiscritCard key={m.id} m={m} showDays day={day} region={g.region} />)}</div>
                 </div>
               ))}

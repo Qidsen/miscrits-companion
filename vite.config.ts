@@ -24,7 +24,7 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 3_000_000,
         navigateFallbackDenylist: [/^\/data\//],
         runtimeCaching: [
-          { urlPattern: /\/data\/maps\/.*\.webp$/, handler: 'CacheFirst', options: { cacheName: 'maps', expiration: { maxEntries: 30 } } },
+          { urlPattern: /\/data\/maps\/.*\.webp$/, handler: 'StaleWhileRevalidate', options: { cacheName: 'maps', expiration: { maxEntries: 30, maxAgeSeconds: 7 * 24 * 3600 } } },
           // opaque (no-cors) images: revalidate so a transient CDN error is not pinned; keep the count low (opaque entries are quota-heavy)
           { urlPattern: /^https:\/\/cdn\.worldofmiscrits\.com\/.*/, handler: 'StaleWhileRevalidate',
             options: { cacheName: 'sprites', expiration: { maxEntries: 400, maxAgeSeconds: 7 * 24 * 3600, purgeOnQuotaError: true }, cacheableResponse: { statuses: [0, 200] } } },

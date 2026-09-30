@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useData } from '../data/DataProvider'
-import { dayShort, regionLabel, useT } from '../i18n'
+import { zoneLabel, dayShort, regionLabel, useT } from '../i18n'
 import { useGameDay } from '../hooks/useGameDay'
 import { huntToday, huntWeek } from '../domain/hunt'
 import { useCollection } from '../store/collection'
@@ -43,7 +43,7 @@ export function HuntPage() {
                       <h3><Link to={`/map/${encodeURIComponent(g.region)}`}>{regionLabel(t, g.region)} →</Link></h3>
                       {g.zones.map(z => (
                         <div key={z.zone} style={{ marginBottom: 10 }}>
-                          <div className="small muted">📍 {regionByName.get(g.region)?.zones[z.zone] ?? z.zone}</div>
+                          <div className="small muted">📍 {zoneLabel(t, regionByName.get(g.region)?.zones[z.zone] ?? `Zone ${z.zone}`)}</div>
                           <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
                             {z.miscrits.map(m => <MiscritCard key={m.id} m={m} size="sm" showDays day={day} region={g.region} />)}
                           </div>

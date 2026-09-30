@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import type { Miscrit, Region } from '../data/types'
-import { useT } from '../i18n'
+import { zoneLabel, useT } from '../i18n'
 import { zoneColor } from '../domain/zones'
 import { MiscritCard } from './MiscritCard'
 
@@ -22,10 +22,11 @@ export function ZonePanel({ region, groups, day, hoveredZone, hoveredMiscrit, on
         const color = zoneColor(region, g.zone)
         return (
           <section key={g.zone} className={`zone-block${hoveredZone === g.zone ? ' on' : ''}`} style={{ '--zc': color } as CSSProperties}
-            onMouseEnter={() => onHoverZone(g.zone)} onMouseLeave={() => onHoverZone(null)} data-testid="zone-block">
+            onMouseEnter={() => onHoverZone(g.zone)} onMouseLeave={() => onHoverZone(null)}
+            onFocus={() => onHoverZone(g.zone)} onBlur={() => onHoverZone(null)} data-testid="zone-block">
             <header className="zone-head">
               <span className="zone-dot" />
-              <h3>{region.zones[g.zone] ?? g.zone}</h3>
+              <h3>{zoneLabel(t, region.zones[g.zone] ?? `Zone ${g.zone}`)}</h3>
               <span className="count">{g.miscrits.length}</span>
             </header>
             <div className="zone-cards">

@@ -26,7 +26,7 @@ export function CollectionPage() {
     const blob = new Blob([exportCollection(caught, favorites)], { type: 'application/json' })
     const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'miscrits-collection.json' })
     a.click()
-    URL.revokeObjectURL(a.href)
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000) // some browsers need the URL alive after click()
   }
   const onFile = async (f: File | undefined) => {
     if (!f) return
