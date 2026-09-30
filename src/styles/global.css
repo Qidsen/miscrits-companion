@@ -48,7 +48,7 @@ h1 { font-size: 32px; } h2 { font-size: 22px; } h3 { font-size: 17px; }
 @media (max-width: 720px) { h1 { font-size: 26px; } main { padding-bottom: 76px; } }
 
 /* shared atoms */
-.avatar { flex-shrink: 0; aspect-ratio: 1; border-radius: 50%; background: var(--bg-3); border: 2px solid var(--r, var(--line)); object-fit: cover; display: block; }
+.avatar { flex-shrink: 0; aspect-ratio: 1; max-width: none; border-radius: 50%; background: var(--bg-3); border: 2px solid var(--r, var(--line)); object-fit: cover; display: block; }
 .avatar-fallback { display: grid; place-items: center; color: var(--text-2); font-weight: 800; }
 .element-icons { display: inline-flex; gap: 2px; }
 .rarity-badge { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 2px 9px; border-radius: 999px; color: var(--r); border: 1px solid var(--r); background: color-mix(in srgb, var(--r) 12%, transparent); }

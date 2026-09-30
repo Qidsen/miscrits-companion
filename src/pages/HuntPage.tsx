@@ -12,6 +12,8 @@ import { RarityBadge } from '../components/RarityBadge'
 import { Panel } from '../components/Panel'
 import { BOT_USERNAME } from '../config'
 import { encodeIds } from '../domain/collection'
+import { mapImageUrl } from '../data/images'
+import { zoneColor } from '../domain/zones'
 import './tools.css'
 
 export function HuntPage() {
@@ -52,22 +54,32 @@ export function HuntPage() {
           <Panel title={t('hunt.today')}>
             {route.length === 0 ? <div className="muted">{t('hunt.nothingToday')}</div> : (
               <div className="hunt-route">
-                {route.map((g, i) => (
-                  <div key={g.region} className="hunt-step">
-                    <span className="hunt-num">{i + 1}</span>
-                    <div>
-                      <h3><Link to={`/map/${encodeURIComponent(g.region)}`}>{regionLabel(t, g.region)} →</Link></h3>
-                      {g.zones.map(z => (
-                        <div key={z.zone} style={{ marginBottom: 10 }}>
-                          <div className="small muted">📍 {zoneLabel(t, regionByName.get(g.region)?.zones[z.zone] ?? `Zone ${z.zone}`)}</div>
-                          <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))' }}>
-                            {z.miscrits.map(m => <MiscritCard key={m.id} m={m} size="sm" showDays day={day} region={g.region} />)}
+                {route.map((g, i) => {
+                  const region = regionByName.get(g.region)
+                  return (
+                    <section key={g.region} className="hunt-step">
+                      <Link to={`/map/${encodeURIComponent(g.region)}`} className="hunt-banner"
+                        style={region?.map ? { backgroundImage: `url(${mapImageUrl(region.map.file)})` } : undefined}>
+                        <span className="hunt-num">{i + 1}</span>
+                        <h3>{regionLabel(t, g.region)}</h3>
+                        <span className="hunt-go">🗺️ →</span>
+                      </Link>
+                      <div className="hunt-zones">
+                        {g.zones.map(z => (
+                          <div key={z.zone} className="hunt-zone">
+                            <div className="hunt-zone-title">
+                              <span className="zone-dot" style={{ background: region ? zoneColor(region, z.zone) : undefined }} />
+                              {zoneLabel(t, region?.zones[z.zone] ?? `Zone ${z.zone}`)}
+                            </div>
+                            <div className="hunt-cards">
+                              {z.miscrits.map(m => <MiscritCard key={m.id} m={m} size="mini" showDays day={day} region={g.region} />)}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                        ))}
+                      </div>
+                    </section>
+                  )
+                })}
               </div>
             )}
           </Panel>
