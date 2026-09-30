@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import type { Miscrit } from '../data/types'
 import { useData } from '../data/DataProvider'
 import { elementIconUrl } from '../data/images'
-import { useT } from '../i18n'
+import { controlLabel, useT } from '../i18n'
 import { BASE_ELEMENTS } from '../domain/miscrit'
 import { statsAt } from '../domain/stats'
 import { controlSummary, decodeTeam, defenseWeakness, encodeTeam, offenseCoverage, type TeamSlot } from '../domain/team'
@@ -71,10 +71,10 @@ export function TeamPage() {
           </Panel>
           <Panel title={t('team.control')}>
             {Object.keys(control).length === 0 ? <div className="muted small">{t('team.none')}</div>
-              : <div className="row" style={{ gap: 6 }}>{Object.entries(control).map(([k, v]) => <span key={k} className="chip">{k} ×{v}</span>)}</div>}
+              : <div className="row" style={{ gap: 6 }}>{Object.entries(control).map(([k, v]) => <span key={k} className="chip">{controlLabel(t, k)} ×{v}</span>)}</div>}
           </Panel>
           <Panel title={t('team.speed')}>
-            <div className="speed-list">{speed.map(({ m, spd }, i) => <div key={m.id}><b>{i + 1}.</b><MiscritAvatar name={m.names[0]} size={30} />{m.names[0]}<span className="muted small">SPD ≈ {spd}</span></div>)}</div>
+            <div className="speed-list">{speed.map(({ m, spd }, i) => <div key={m.id}><b>{i + 1}.</b><MiscritAvatar name={m.names[0]} size={30} />{m.names[0]}<span className="muted small">{t('team.spd', { n: spd })}</span></div>)}</div>
           </Panel>
         </div>
       )}

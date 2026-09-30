@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import type { Miscrit } from '../data/types'
 import { useData } from '../data/DataProvider'
 import { elementIconUrl } from '../data/images'
-import { regionLabel, useT, type I18nKey } from '../i18n'
+import { elementLabel, regionLabel, useT, type I18nKey } from '../i18n'
 import { useGameDay } from '../hooks/useGameDay'
 import { markerVisible } from '../domain/mapCoords'
 import { BASE_ELEMENTS, RARITY_ORDER, splitElement } from '../domain/miscrit'
@@ -30,6 +30,7 @@ export function MapPage() {
   // a focus link targets one marker: show any day so it is never filtered out
   const [picked, setDay] = useState<number | null | undefined>(focus ? null : undefined)
   const day = picked === undefined ? today : picked
+  useEffect(() => { setDay(p => (p === today ? undefined : p)) }, [today]) // the picked day became today at reset
   const [rarities, setRarities] = useState<string[]>([])
   const [elements, setElements] = useState<string[]>([])
   const [hideCaught, setHideCaught] = useState(false)
@@ -83,7 +84,7 @@ export function MapPage() {
             <DayPicker value={day} today={today} onChange={d => setDay(d === today ? undefined : d)} anyLabel={t('map.anyDay')} />
             <div className="row" style={{ gap: 6 }}>
               {BASE_ELEMENTS.map(el => (
-                <button key={el} className="chip chip-icon" aria-pressed={elements.includes(el)} title={el} aria-label={el} onClick={() => setElements(es => toggle(es, el))}>
+                <button key={el} className="chip chip-icon" aria-pressed={elements.includes(el)} title={elementLabel(t, el)} aria-label={elementLabel(t, el)} onClick={() => setElements(es => toggle(es, el))}>
                   <img src={elementIconUrl(el)} alt="" width={18} height={18} />
                 </button>
               ))}

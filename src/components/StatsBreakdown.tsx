@@ -1,5 +1,5 @@
 import { elementIconUrl } from '../data/images'
-import { useT, type I18nKey } from '../i18n'
+import { elementLabel, useT, type I18nKey } from '../i18n'
 import { BASE_ELEMENTS, RARITY_ORDER } from '../domain/miscrit'
 import { ELEMENT_COLORS } from '../styles/elements'
 import type { collectionStats } from '../domain/collection'
@@ -23,7 +23,7 @@ export function StatsBreakdown({ stats }: { stats: Stats }) {
     <div className="breakdown">
       <div>
         <h3>{t('col.byElement')}</h3>
-        {BASE_ELEMENTS.map(e => <Bar key={e} label={e} icon={elementIconUrl(e)} color={ELEMENT_COLORS[e]} v={stats.byElement[e]} />)}
+        {BASE_ELEMENTS.map(e => <Bar key={e} label={elementLabel(t, e)} icon={elementIconUrl(e)} color={ELEMENT_COLORS[e]} v={stats.byElement[e]} />)}
       </div>
       <div>
         <h3>{t('col.byRarity')}</h3>

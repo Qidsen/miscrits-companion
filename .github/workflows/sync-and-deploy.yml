@@ -9,8 +9,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: sync-and-deploy
@@ -27,6 +25,8 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Sync game data
+        # on code pushes an upstream outage must not block the deploy: keep the committed data
+        continue-on-error: ${{ github.event_name == 'push' }}
         run: npm run sync
       - run: npm test
       - name: Commit updated data
@@ -36,6 +36,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add public/data data-raw
             git commit -m "chore(data): scheduled sync"
+            git pull --rebase origin main
             git push
           else
             echo "No data changes"
@@ -50,6 +51,9 @@ jobs:
     needs: sync
     if: vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

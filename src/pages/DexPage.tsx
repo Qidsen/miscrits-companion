@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useData } from '../data/DataProvider'
-import { regionLabel, useT, type I18nKey } from '../i18n'
+import { elementLabel, regionLabel, useT, type I18nKey } from '../i18n'
 import { EMPTY_FILTER, filterMiscrits, filterToParams, paramsToFilter, type DexFilter, type SortKey } from '../domain/filters'
 import { BASE_ELEMENTS, RARITY_ORDER } from '../domain/miscrit'
 import { useGameDay } from '../hooks/useGameDay'
@@ -36,7 +36,7 @@ export function DexPage() {
         <div className="row">
           {BASE_ELEMENTS.map(el => (
             <button key={el} className="chip" aria-pressed={f.elements.includes(el)} onClick={() => set({ elements: toggle(f.elements, el) })}>
-              <img src={elementIconUrl(el)} alt="" width={16} height={16} />{el}
+              <img src={elementIconUrl(el)} alt="" width={16} height={16} />{elementLabel(t, el)}
             </button>
           ))}
         </div>

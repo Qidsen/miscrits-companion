@@ -76,3 +76,9 @@ test('msUntilReset', () => {
   expect(msUntilReset(new Date('2026-09-30T23:00:00Z'))).toBe(3_600_000)
   expect(msUntilReset(new Date('2026-10-01T00:00:00Z'))).toBe(86_400_000)
 })
+
+import { formatClock } from '../../src/domain/schedule'
+test('formatClock shows m:ss and hours only when needed', () => {
+  expect(formatClock(65_000)).toBe('01:05')
+  expect(formatClock(3_725_000)).toBe('1:02:05')
+})

@@ -11,9 +11,10 @@ export function MoreMenu({ items, open, onClose, sheet }: { items: NavItem[]; op
     if (!open) return
     const onDoc = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) onClose() }
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    setTimeout(() => document.addEventListener('click', onDoc))
+    // defer so the click that opened the menu does not close it immediately
+    const id = setTimeout(() => document.addEventListener('click', onDoc))
     document.addEventListener('keydown', onKey)
-    return () => { document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onKey) }
+    return () => { clearTimeout(id); document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onKey) }
   }, [open, onClose])
   if (!open) return null
   return (

@@ -24,3 +24,12 @@ export const regionLabel = (t: T, name: string) => {
   const key = `region.${name}` as I18nKey
   return key in en ? t(key) : name
 }
+const has = (key: string): key is I18nKey => key in en
+export const elementLabel = (t: T, el: string) =>
+  (el.match(/[A-Z][a-z]+/g) ?? [el]).map(p => (has(`element.${p}`) ? t(`element.${p}` as I18nKey) : p)).join('/')
+/** Zones without a known name come from data as "Zone N". */
+export const zoneLabel = (t: T, name: string) => {
+  const m = /^Zone (\d+)$/.exec(name)
+  return m ? t('zone.n', { n: m[1] }) : name
+}
+export const controlLabel = (t: T, type: string) => (has(`ctl.${type}`) ? t(`ctl.${type}` as I18nKey) : type)

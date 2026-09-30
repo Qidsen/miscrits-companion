@@ -5,6 +5,7 @@ import type { MapInfo, Marker, Region } from '../data/types'
 import { avatarUrl, mapImageUrl } from '../data/images'
 import { escapeHtml, safeClass } from '../data/escape'
 import { useData } from '../data/DataProvider'
+import { useT, zoneLabel } from '../i18n'
 import { toLatLng } from '../domain/mapCoords'
 import { markerZone, type ZoneShape } from '../domain/zones'
 import { MarkerPopupCard } from './MarkerPopupCard'
@@ -44,16 +45,33 @@ function FlyTo({ target, map, zoom, markers, refs, compact }: {
   return null
 }
 
+/** Phones: start zoomed so the map fills the container height ("cover"), centred on the markers. */
+function PhoneCover({ map, markers }: { map: MapInfo; markers: Marker[] }) {
+  const lmap = useMap()
+  useEffect(() => {
+    const size = lmap.getSize()
+    if (size.x >= 700 || !markers.length) return
+    const contain = Math.log2(Math.min(size.x / map.width, size.y / map.height))
+    const cover = Math.log2(Math.max(size.x / map.width, size.y / map.height))
+    const zoom = Math.min(cover, contain + 1.25) // big enough to read, never so big that the region is lost
+    const cx = markers.reduce((s, m) => s + m.x, 0) / markers.length
+    const cy = markers.reduce((s, m) => s + m.y, 0) / markers.length
+    lmap.setView(toLatLng(cx, cy, map), zoom, { animate: false })
+  }, [lmap, map]) // eslint-disable-line react-hooks/exhaustive-deps
+  return null
+}
+
 function ZoneLayer({ shapes, map, hovered, onHover }: { shapes: ZoneShape[]; map: MapInfo; hovered?: string | null; onHover?: (z: string | null) => void }) {
+  const t = useT()
   return <>
     {shapes.map(s => {
       const on = hovered === s.zone
       const style = { color: s.color, weight: on ? 3 : 2, opacity: hovered && !on ? 0.35 : 0.9, dashArray: on ? undefined : '6 6', fillColor: s.color, fillOpacity: on ? 0.34 : hovered ? 0.06 : 0.18 }
       const handlers = { mouseover: () => onHover?.(s.zone), mouseout: () => onHover?.(null) }
-      const label = <Tooltip permanent direction="center" className={`zone-label${on ? ' on' : ''}`} opacity={1}><span style={{ borderColor: s.color }}>{s.name}</span></Tooltip>
+      const label = <Tooltip permanent direction="center" className={`zone-label${on ? ' on' : ''}`} opacity={1}><span style={{ borderColor: s.color }}>{zoneLabel(t, s.name)}</span></Tooltip>
       return s.hull.length >= 3
         ? <Polygon key={s.zone} positions={s.hull.map(([x, y]) => toLatLng(x, y, map))} pathOptions={style} eventHandlers={handlers}>{label}</Polygon>
-        : <Circle key={s.zone} center={toLatLng(s.center[0], s.center[1], map)} radius={(s.radius / 100) * map.width} pathOptions={style} eventHandlers={handlers}>{label}</Circle>
+        : <Circle key={s.zone} center={toLatLng(s.center[0], s.center[1], map)} radius={s.radiusPx} pathOptions={style} eventHandlers={handlers}>{label}</Circle>
     })}
   </>
 }
@@ -65,6 +83,7 @@ interface Props {
 }
 
 export function RegionMap({ region, markers, compact, height = '100%', shapes = [], hoveredZone, onZoneHover, pulseMiscrit, flyTo, day }: Props) {
+  const t = useT()
   const { byId } = useData()
   const map = region.map!
   const bounds = useMemo<L.LatLngBoundsExpression>(() => [[0, 0], [map.height, map.width]], [map])
@@ -77,6 +96,7 @@ export function RegionMap({ region, markers, compact, height = '100%', shapes = 
       boxZoom={!compact} keyboard={!compact} attributionControl={false}>
       <ImageOverlay url={mapImageUrl(map.file)} bounds={bounds} />
       {!compact && <ZoneLayer shapes={shapes} map={map} hovered={hoveredZone} onHover={onZoneHover} />}
+      {!compact && !flyTo && <PhoneCover map={map} markers={markers} />}
       <FlyTo target={flyTo} map={map} zoom={compact ? -1 : 0} markers={markers} refs={refs} compact={compact} />
       {markers.map(mk => {
         const m = mk.miscritId !== null ? byId.get(mk.miscritId) : undefined
@@ -89,7 +109,7 @@ export function RegionMap({ region, markers, compact, height = '100%', shapes = 
         return (
           <LMarker key={mk.id} position={toLatLng(mk.x, mk.y, map)} icon={icon(mk, m?.rarity ?? mk.rarity, state)}
             ref={r => { if (r) refs.current.set(mk.id, r); else refs.current.delete(mk.id) }}>
-            {!compact && <Popup className="mc-popup" minWidth={240}><MarkerPopupCard marker={mk} miscrit={m} zoneName={zone ? region.zones[zone] : undefined} day={day} /></Popup>}
+            {!compact && <Popup className="mc-popup" minWidth={240}><MarkerPopupCard marker={mk} miscrit={m} zoneName={zone ? zoneLabel(t, region.zones[zone] ?? `Zone ${zone}`) : undefined} day={day} /></Popup>}
           </LMarker>
         )
       })}

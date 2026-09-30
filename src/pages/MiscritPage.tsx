@@ -1,7 +1,7 @@
 import { useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useData } from '../data/DataProvider'
-import { dayShort, regionLabel, useT } from '../i18n'
+import { elementLabel, zoneLabel, dayShort, regionLabel, useT } from '../i18n'
 import { nextAvailableDay } from '../domain/schedule'
 import { elementGradient, elementColor } from '../styles/elements'
 import { useCollection } from '../store/collection'
@@ -51,7 +51,7 @@ function MiscritPage({ id }: { id?: string }) {
         <div className="miscrit-info">
           <div className="row" style={{ gap: 8 }}>
             <span className="miscrit-num">#{m.id}</span><RarityBadge rarity={m.rarity} />
-            <span className="miscrit-el"><ElementIcons element={m.element} size={20} /> {m.element}</span>
+            <span className="miscrit-el"><ElementIcons element={m.element} size={20} /> {elementLabel(t, m.element)}</span>
           </div>
           <h1>{m.names[evo]}</h1>
           <p className="miscrit-desc">{m.descriptions[evo]}</p>
@@ -89,7 +89,7 @@ function MiscritPage({ id }: { id?: string }) {
           {m.spawns.map(s => (
             <div key={`${s.region}-${s.zone}`} className="spawn">
               <div><Link to={`/map/${encodeURIComponent(s.region)}`}><b>{regionLabel(t, s.region)}</b></Link>
-                <span className="muted"> · {regionByName.get(s.region)?.zones[s.zone] ?? s.zone}</span></div>
+                <span className="muted"> · {zoneLabel(t, regionByName.get(s.region)?.zones[s.zone] ?? `Zone ${s.zone}`)}</span></div>
               <DayDots days={s.days} today={today} />
             </div>
           ))}
@@ -126,7 +126,7 @@ function MiscritPage({ id }: { id?: string }) {
             <div key={a.id} className="ability" style={{ '--ac': elementColor(a.element) } as CSSProperties}>
               <div className="ability-head">
                 <span className="ability-num">{i + 1}</span><b>{a.name}</b>
-                <span className="chip small">{a.element}</span><span className="chip small">{a.type}</span>
+                <span className="chip small">{elementLabel(t, a.element)}</span><span className="chip small">{a.type}</span>
                 {a.ap !== undefined && <span className="ability-ap">AP {a.ap}</span>}
                 {a.accuracy !== undefined && <span className="small muted">{a.accuracy}%</span>}
               </div>

@@ -39,3 +39,9 @@ test('two markers → circle covering both', () => {
   expect(s.center).toEqual([20, 10])
   expect(s.radius).toBeGreaterThanOrEqual(10)
 })
+
+test('circle radius is measured in map pixels, so tall maps still cover their markers', () => {
+  const tall: Region = { name: 'Forest', zones: { '1': 'A' }, map: { file: 'f', width: 100, height: 300 } }
+  const [s] = zoneShapes(tall, [mk('a', 1, 50, 10), mk('b', 1, 50, 20)], byId)
+  expect(s.radiusPx).toBeGreaterThanOrEqual(15) // half of 10% of 300px
+})
