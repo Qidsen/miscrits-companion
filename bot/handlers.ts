@@ -66,9 +66,16 @@ export async function syncHunt(d: BotDeps, token: string, ids: unknown[]): Promi
   const known = new Set(data.miscrits.map(m => m.id))
   const hunt = [...new Set(ids.filter((x): x is number => typeof x === 'number' && known.has(x)))].slice(0, 500)
   const sub = s.subs.find(x => x.chatId === chatId)
-  if (!sub || JSON.stringify(sub.hunt) !== JSON.stringify(hunt)) {
+  const pending = (s.pending ?? []).includes(chatId)
+  if (!sub || pending || JSON.stringify(sub.hunt) !== JSON.stringify(hunt)) {
     const subs = sub ? s.subs.map(x => (x.chatId === chatId ? { ...x, hunt } : x)) : [...s.subs, { chatId, name: '', hunt }]
-    await d.saveState({ ...s, subs })
+    await d.saveState({ ...s, subs, pending: (s.pending ?? []).filter(id => id !== chatId) })
+    // only now is the link really working: confirm with the real count; later edits stay silent
+    const text = pending
+      ? `✅ <b>Сайт подключён!</b> Получил список охоты: <b>${hunt.length}</b>. Дальше он обновляется сам — команды /hunt больше не нужны.\n\nКаждый день в 03:00 по Киеву пришлю твою карточку охоты. /today — прямо сейчас.`
+        + (hunt.length ? '' : `\n\nСписок пока пуст — добавь мискритов в «Охоту»: ${d.siteUrl}#/hunt`)
+      : !sub?.hunt.length && hunt.length ? `📥 Получил с сайта список охоты: <b>${hunt.length}</b>. Дальше он будет обновляться сам.\n\n/today — кого можно поймать прямо сейчас.` : null
+    if (text) try { await d.deliver({ chatId, text }) } catch { /* best effort */ }
   }
   return { linked: true, count: hunt.length }
 }

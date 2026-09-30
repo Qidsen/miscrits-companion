@@ -81,12 +81,13 @@ export function applyUpdate(s: BotState, u: TgUpdate, ctx: Ctx): { state: BotSta
     const existing = state.subs.find(x => x.chatId === chatId)
     const subs = existing ? state.subs : [...state.subs, { chatId, name: (msg.from?.first_name ?? '').slice(0, 40), hunt: [] }]
     if (!existing && subs.length > MAX_SUBS) { replies.push({ chatId, text: '⚠️ Сейчас слишком много подписчиков, попробуй позже.' }); return { state, replies } }
-    state = { ...state, subs, links: { ...state.links, [ctx.linkKey]: chatId } }
-    replies.push({ chatId, text: '✅ <b>Сайт подключён!</b> Список охоты с сайта теперь обновляется у меня сам — команды /hunt больше не нужны.\n\nКаждый день в 03:00 по Киеву пришлю твою карточку охоты. /today — прямо сейчас.' })
+    state = { ...state, subs, links: { ...state.links, [ctx.linkKey]: chatId }, pending: [...new Set([...(state.pending ?? []), chatId])] }
+    // not "connected" yet: that's confirmed once the site actually delivers the list (see syncHunt)
+    replies.push({ chatId, text: '🔗 Связываю с сайтом… Жду от него список охоты — обычно это пара секунд. Напишу, как получу.' })
     return { state, replies }
   }
   if (cmd === '/unlink') {
-    state = { ...state, links: Object.fromEntries(Object.entries(state.links).filter(([, id]) => id !== chatId)) }
+    state = { ...state, links: Object.fromEntries(Object.entries(state.links).filter(([, id]) => id !== chatId)), pending: (state.pending ?? []).filter(id => id !== chatId) }
     replies.push({ chatId, text: '🔌 Сайт отключён. Список охоты остался прежним; подключить снова — кнопкой в «Охоте» на сайте.' })
     return { state, replies }
   }
@@ -105,6 +106,12 @@ export function applyUpdate(s: BotState, u: TgUpdate, ctx: Ctx): { state: BotSta
     replies.push({ chatId, text: `✅ Готово! В списке охоты: <b>${ids.length}</b>. Карточка дня — каждый день в 03:00 по Киеву. Вот что сегодня:` })
     replies.push(...personalMessages(chatId, ctx.data, ids, ctx.now, ctx.siteUrl, ctx.cardUrl))
   } else if (cmd === '/today') {
+    const linked = Object.values(state.links ?? {}).includes(chatId)
+    if ((state.pending ?? []).includes(chatId) || (linked && !hunt().length)) {
+      // linked, but the site hasn't pushed a list yet (it does so while the Hunt page is open)
+      replies.push({ chatId, text: `⏳ Жду список охоты с сайта. Открой «Охоту» на сайте — он пришлёт его сам за пару секунд:\n${ctx.siteUrl}#/hunt` })
+      return { state, replies }
+    }
     replies.push(...personalMessages(chatId, ctx.data, hunt(), ctx.now, ctx.siteUrl, ctx.cardUrl))
   } else if (cmd === '/stop') {
     state = { ...state, subs: state.subs.filter(x => x.chatId !== chatId) }

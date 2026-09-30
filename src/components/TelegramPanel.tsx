@@ -13,7 +13,7 @@ const POLL_MS = 3000, POLL_FOR_MS = 180_000
 export function TelegramPanel() {
   const t = useT()
   const ids = useHunt(s => s.ids)
-  const { token, linked, ensureToken, setLinked, reset } = useTelegram()
+  const { token, linked, sync, ensureToken, setLinked, reset } = useTelegram()
   const [waiting, setWaiting] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -41,7 +41,11 @@ export function TelegramPanel() {
     <Panel title={`📨 ${t('tg.title')}`} style={{ marginBottom: 16 }} testId="tg-panel">
       {linked ? (
         <div className="row">
-          <span className="tg-ok">✅ {t('tg.linked')}</span>
+          {sync.state === 'synced'
+            ? <span className="tg-ok" data-testid="tg-status">✅ {t('tg.synced', { n: sync.count, time: new Date(sync.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) })}</span>
+            : sync.state === 'failed'
+              ? <span className="tg-warn" data-testid="tg-status">⚠️ {t('tg.failed')}</span>
+              : <span className="muted" data-testid="tg-status">⏳ {t('tg.syncing')}</span>}
           <a className="btn" href={botUrl} target="_blank" rel="noreferrer">{t('tg.open')}</a>
           <button className="btn" onClick={reset}>{t('tg.disconnect')}</button>
         </div>

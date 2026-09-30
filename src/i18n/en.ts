@@ -272,4 +272,7 @@ export const en = {
   'tg.open': "Open the bot",
   'tg.disconnect': "Disconnect",
   'tg.manual': "Or send the bot this command",
+  'tg.syncing': "Bot connected — sending your hunt list…",
+  'tg.synced': "Synced with the bot: {n} miscrits · {time}",
+  'tg.failed': "Couldn't reach the bot — will retry on the next change",
 } as const
