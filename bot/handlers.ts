@@ -33,12 +33,44 @@ async function sendAll(d: BotDeps, msgs: OutMsg[]): Promise<'ok' | 'blocked' | '
 export async function handleUpdate(d: BotDeps, u: TgUpdate): Promise<void> {
   const before = await d.loadState()
   const { data } = await d.data()
-  const r = applyUpdate(before, u, { data, now: d.now(), siteUrl: d.siteUrl, botName: d.botName, adminToken: d.adminToken, cardUrl: d.cardUrl })
+  const payload = /^\/start(?:@\w+)?\s+([a-f0-9]{32})$/.exec(u.message?.text?.trim() ?? '')?.[1]
+  const r = applyUpdate(before, u, { data, now: d.now(), siteUrl: d.siteUrl, botName: d.botName, adminToken: d.adminToken, cardUrl: d.cardUrl, linkKey: payload ? await linkKey(payload) : undefined })
   let state = { ...r.state, offset: before.offset } // offsets are a polling concept; keep the stored value stable
   const byChat = new Map<number, OutMsg[]>()
   for (const m of r.replies) byChat.set(m.chatId, [...(byChat.get(m.chatId) ?? []), m])
   for (const [chatId, msgs] of byChat) if (await sendAll(d, msgs) === 'blocked') state = drop(state, chatId)
   if (JSON.stringify(state) !== JSON.stringify(before)) await d.saveState(state)
+}
+
+const TOKEN_RE = /^[a-f0-9]{32}$/
+
+/** The bot stores only sha256(token): a leaked state file can't be used to push lists for someone else. */
+export async function linkKey(token: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token))
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+export async function linkStatus(d: BotDeps, token: string): Promise<{ linked: boolean }> {
+  if (!TOKEN_RE.test(token)) return { linked: false }
+  const s = await d.loadState()
+  return { linked: (s.links ?? {})[await linkKey(token)] !== undefined }
+}
+
+/** Called by the site whenever the hunt list changes. */
+export async function syncHunt(d: BotDeps, token: string, ids: unknown[]): Promise<{ linked: boolean; count: number }> {
+  if (!TOKEN_RE.test(token)) return { linked: false, count: 0 }
+  const s = await d.loadState()
+  const chatId = (s.links ?? {})[await linkKey(token)]
+  if (chatId === undefined) return { linked: false, count: 0 }
+  const { data } = await d.data()
+  const known = new Set(data.miscrits.map(m => m.id))
+  const hunt = [...new Set(ids.filter((x): x is number => typeof x === 'number' && known.has(x)))].slice(0, 500)
+  const sub = s.subs.find(x => x.chatId === chatId)
+  if (!sub || JSON.stringify(sub.hunt) !== JSON.stringify(hunt)) {
+    const subs = sub ? s.subs.map(x => (x.chatId === chatId ? { ...x, hunt } : x)) : [...s.subs, { chatId, name: '', hunt }]
+    await d.saveState({ ...s, subs })
+  }
+  return { linked: true, count: hunt.length }
 }
 
 /** Cron: send today's digest to everyone who hasn't got it yet; progress is saved per chat. */

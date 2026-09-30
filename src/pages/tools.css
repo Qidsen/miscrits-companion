@@ -108,3 +108,4 @@
 .hunt-cards > .mcard { width: 128px; }
 @media (max-width: 420px) { .hunt-cards > .mcard { width: calc(50% - 5px); } }
 @media (max-width: 560px) { .hunt-zone { flex-basis: 100%; } }
+.tg-ok { font-weight: 800; color: var(--ok); }

@@ -265,4 +265,11 @@ export const en = {
   'tg.note': "After changing the list, send the new command again. The bot answers within ~15–30 min.",
   'footer.madeBy': "Created by",
   'tg.note2': "After changing the list, send the new command again — the bot answers instantly.",
+  'tg.connect': "Connect Telegram",
+  'tg.connectHint': "Press Start in the bot — after that your hunt list syncs automatically, no commands needed.",
+  'tg.waiting': "Waiting for you to press Start in the bot…",
+  'tg.linked': "Bot connected — your hunt list syncs automatically",
+  'tg.open': "Open the bot",
+  'tg.disconnect': "Disconnect",
+  'tg.manual': "Or send the bot this command",
 } as const
