@@ -1,0 +1,14 @@
+.header { position: sticky; top: 0; z-index: 1000; background: rgba(15,17,23,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.header-inner { max-width: 1280px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 16px; }
+.logo { font-weight: 800; font-size: 17px; white-space: nowrap; }
+.logo span { color: var(--accent); margin-left: 4px; }
+.nav { display: flex; gap: 4px; }
+.nav a { padding: 6px 10px; border-radius: var(--radius-s); color: var(--text-2); }
+.nav a.active { color: var(--text); background: var(--bg-3); }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.search-btn kbd { font-size: 11px; color: var(--text-3); margin-left: 4px; }
+@media (max-width: 720px) {
+  .header-inner { flex-wrap: wrap; gap: 8px; }
+  .nav { order: 3; width: 100%; overflow-x: auto; }
+  .search-btn kbd, .logo span { display: none; }
+}

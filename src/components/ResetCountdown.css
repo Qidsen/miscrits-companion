@@ -1,0 +1,4 @@
+.reset { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+.reset-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+.reset-time { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--accent); }
+@media (max-width: 520px) { .reset-label { display: none; } }
