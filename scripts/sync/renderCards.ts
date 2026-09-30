@@ -46,7 +46,7 @@ export async function renderCards(miscrits: Miscrit[], outDir: string): Promise<
       <g font-family="DejaVu Sans, Arial, sans-serif">${rings}</g>
       <text x="${CARD_W - 40}" y="60" text-anchor="end" font-size="20" fill="#707c94" font-family="DejaVu Sans, Arial, sans-serif">✦ Miscrits Companion · by Qidsen</text>
     </svg>`
-    const layers: sharp.OverlayOptions[] = []
+    const layers: { input: Buffer; left: number; top: number }[] = []
     for (const s of slots) {
       const img = await sprite(s.name, s.size - 36)
       if (img) layers.push({ input: img, left: s.x + 18, top: s.y + 18 })

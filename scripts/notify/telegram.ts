@@ -1,4 +1,5 @@
 import type { TgUpdate } from './commands'
+import type { OutMsg } from './digest'
 
 type Sleep = (ms: number) => Promise<void>
 const realSleep: Sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -40,10 +41,30 @@ export class TelegramClient {
 
   /** 'blocked' when the user blocked the bot or the chat is gone (caller unsubscribes them). */
   async send(chatId: number, text: string): Promise<'ok' | 'blocked' | 'error'> {
-    const { status, data } = await this.call('sendMessage', { chat_id: chatId, text, parse_mode: 'HTML', disable_web_page_preview: true })
+    return this.deliver({ chatId, text })
+  }
+
+  /** Send one OutMsg (text / photo+caption / album) with optional inline buttons. */
+  async deliver(m: OutMsg): Promise<'ok' | 'blocked' | 'error'> {
+    const markup = m.buttons?.length ? { reply_markup: { inline_keyboard: m.buttons } } : {}
+    let res
+    if (m.album?.length) {
+      res = await this.call('sendMediaGroup', { chat_id: m.chatId, media: m.album.map(a => ({ type: 'photo', media: a.photo, caption: a.caption })) })
+    } else if (m.photo) {
+      res = await this.call('sendPhoto', { chat_id: m.chatId, photo: m.photo, caption: m.caption, parse_mode: 'HTML', ...markup })
+      // Telegram couldn't fetch the image: still deliver the words
+      if (!res.data.ok && res.status === 400 && !/chat not found/i.test(res.data.description ?? '')) return this.deliver({ chatId: m.chatId, text: m.caption ?? '', buttons: m.buttons })
+    } else {
+      res = await this.call('sendMessage', { chat_id: m.chatId, text: m.text ?? '', parse_mode: 'HTML', disable_web_page_preview: true, ...markup })
+    }
+    const { status, data } = res
     if (data.ok) return 'ok'
     if (status === 403 || (status === 400 && /chat not found/i.test(data.description ?? ''))) return 'blocked'
     console.warn(`send to chat failed: ${status} ${data.description}`)
     return 'error'
+  }
+
+  async setWebhook(url: string, secret: string) {
+    return (await this.call('setWebhook', { url, secret_token: secret, allowed_updates: ['message', 'my_chat_member'], drop_pending_updates: false })).data
   }
 }

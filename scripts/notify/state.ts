@@ -6,8 +6,10 @@ export interface BotState {
   v: 1; offset: number; lastDaily: string | null; subs: Sub[]; groups: number[]; lastNewsDate: string | null
   /** chats that already got today's digest — lets a crashed run resume without resending */
   sent: { date: string; ids: number[] } | null
+  /** chat id allowed to use /admin (set by /claim) */
+  owner: number | null
 }
-export const EMPTY_STATE: BotState = { v: 1, offset: 0, lastDaily: null, subs: [], groups: [], lastNewsDate: null, sent: null }
+export const EMPTY_STATE: BotState = { v: 1, offset: 0, lastDaily: null, subs: [], groups: [], lastNewsDate: null, sent: null, owner: null }
 
 const keyOf = (b64: string) => {
   const k = Buffer.from(b64, 'base64')

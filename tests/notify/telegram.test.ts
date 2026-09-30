@@ -27,3 +27,27 @@ test('network errors and non-JSON replies never throw', async () => {
   const html = new TelegramClient('T', (async () => new Response('<html>502</html>', { status: 502 })) as typeof fetch, () => Promise.resolve())
   expect(await html.send(5, 'hi')).toBe('error')
 })
+
+test('deliver picks the right API method for text, photo+buttons and albums', async () => {
+  const calls: { method: string; body: Record<string, unknown> }[] = []
+  const tg = new TelegramClient('T', (async (url: string, init?: RequestInit) => {
+    calls.push({ method: url.split('/').pop()!, body: JSON.parse(String(init!.body)) })
+    return json(200, { ok: true, result: {} })
+  }) as typeof fetch, () => Promise.resolve())
+  await tg.deliver({ chatId: 1, text: 'hi', buttons: [[{ text: 'Site', url: 'https://x' }]] })
+  await tg.deliver({ chatId: 1, photo: 'https://x/p.jpg', caption: 'cap' })
+  await tg.deliver({ chatId: 1, album: [{ photo: 'https://x/a.png', caption: 'A' }, { photo: 'https://x/b.png', caption: 'B' }] })
+  expect(calls.map(c => c.method)).toEqual(['sendMessage', 'sendPhoto', 'sendMediaGroup'])
+  expect(calls[0].body.reply_markup).toEqual({ inline_keyboard: [[{ text: 'Site', url: 'https://x' }]] })
+  expect(calls[1].body).toMatchObject({ photo: 'https://x/p.jpg', caption: 'cap', parse_mode: 'HTML' })
+  expect((calls[2].body.media as unknown[]).length).toBe(2)
+})
+test('a failed photo falls back to plain text so the user still gets the digest', async () => {
+  const calls: string[] = []
+  const tg = new TelegramClient('T', (async (url: string) => {
+    const m = url.split('/').pop()!; calls.push(m)
+    return m === 'sendPhoto' ? json(400, { ok: false, description: 'wrong file identifier' }) : json(200, { ok: true, result: {} })
+  }) as typeof fetch, () => Promise.resolve())
+  expect(await tg.deliver({ chatId: 1, photo: 'https://x/p.jpg', caption: 'cap' })).toBe('ok')
+  expect(calls).toEqual(['sendPhoto', 'sendMessage'])
+})

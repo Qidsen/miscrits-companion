@@ -1,8 +1,16 @@
 import type { ChangeEntry, Miscrit, Region } from '../../src/data/types'
 import { escapeHtml } from '../../src/data/escape'
 import { translate, type I18nKey } from '../../src/i18n'
-import { gameDay } from '../../src/domain/schedule'
+import { spriteUrl } from '../../src/data/images'
+import { gameDate, gameDay } from '../../src/domain/schedule'
 import { exclusiveToday, groupAvailable } from '../../src/domain/today'
+
+export interface Button { text: string; url: string }
+/** One outgoing Telegram message: text, a photo with caption, or an album. */
+export interface OutMsg {
+  chatId: number; text?: string; photo?: string; caption?: string
+  album?: { photo: string; caption: string }[]; buttons?: Button[][]
+}
 
 export interface DigestData { miscrits: Miscrit[]; regions: Region[] }
 
@@ -73,4 +81,29 @@ export function groupDigest(d: DigestData, now: Date, siteUrl: string, news: Cha
   }
   lines.push('', `🔗 ${e(siteUrl)}`)
   return fitMessage(lines.join('\n'), siteUrl)
+}
+
+const CAPTION = 1000 // Telegram photo captions are limited to 1024 characters
+const cardUrl = (siteUrl: string, now: Date) => `${siteUrl}data/cards/${gameDay(now)}.jpg?v=${gameDate(now)}`
+const fitCaption = (text: string, siteUrl: string) => (text.length <= CAPTION ? text : cutCaption(text, siteUrl))
+function cutCaption(text: string, siteUrl: string) {
+  const lines = text.split('\n'), out: string[] = []
+  let len = 0
+  for (const l of lines) { if (len + l.length + 1 > CAPTION - 80) break; out.push(l); len += l.length + 1 }
+  return `${out.join('\n')}\n… полный список: ${e(siteUrl)}`
+}
+
+export function personalMessages(chatId: number, d: DigestData, hunt: number[], now: Date, siteUrl: string): OutMsg[] {
+  const set = new Set(hunt)
+  const today = groupAvailable(d.miscrits.filter(m => set.has(m.id)), gameDay(now))
+  const buttons: Button[][] = [[{ text: '🗺 Карта', url: `${siteUrl}#/map` }, { text: '🎯 Моя охота', url: `${siteUrl}#/hunt` }], [{ text: '✦ Открыть сайт', url: siteUrl }]]
+  const out: OutMsg[] = [{ chatId, photo: cardUrl(siteUrl, now), caption: fitCaption(personalDigest(d, hunt, now, siteUrl), siteUrl), buttons }]
+  const album = today.flatMap(g => g.zones.flatMap(z => z.miscrits.map(m => ({ photo: spriteUrl(m.names[0]), caption: `${m.names[0]} — ${region(g.region)} · ${zone(d, g.region, z.zone)}` }))))
+  if (album.length) out.push({ chatId, album: album.slice(0, 10) })
+  return out
+}
+
+export function groupMessages(chatId: number, d: DigestData, now: Date, siteUrl: string, news: ChangeEntry[]): OutMsg[] {
+  const buttons: Button[][] = [[{ text: '✦ Открыть сайт', url: siteUrl }, { text: '📰 Что нового', url: `${siteUrl}#/news` }]]
+  return [{ chatId, photo: cardUrl(siteUrl, now), caption: fitCaption(groupDigest(d, now, siteUrl, news), siteUrl), buttons }]
 }
