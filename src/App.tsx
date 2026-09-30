@@ -5,6 +5,7 @@ import { Layout } from './components/Layout'
 import { NotFound } from './pages/NotFound'
 import { TodayPage } from './pages/TodayPage'
 import { DexPage } from './pages/DexPage'
+import { MapPage } from './pages/MapPage'
 import { translate } from './i18n'
 import { useSettings } from './store/settings'
 
@@ -21,6 +22,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<TodayPage />} />
             <Route path="/dex" element={<DexPage />} />
+            <Route path="/map" element={<MapPage />} />
+            <Route path="/map/:region" element={<MapPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
