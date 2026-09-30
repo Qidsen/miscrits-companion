@@ -4,6 +4,7 @@ import { DataProvider } from './data/DataProvider'
 import { Layout } from './components/Layout'
 import { NotFound } from './pages/NotFound'
 import { TodayPage } from './pages/TodayPage'
+import { DexPage } from './pages/DexPage'
 import { translate } from './i18n'
 import { useSettings } from './store/settings'
 
@@ -19,6 +20,7 @@ export default function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<TodayPage />} />
+            <Route path="/dex" element={<DexPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>

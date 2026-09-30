@@ -1,0 +1,4 @@
+.dex-filters { padding: 14px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.dex-select { width: auto; max-width: 100%; }
+.dex-count { margin: 8px 2px; }
+.dex-empty { padding: 24px; text-align: center; color: var(--text-2); }
