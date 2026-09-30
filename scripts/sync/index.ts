@@ -5,6 +5,7 @@ import { fetchJson } from './http'
 import { diffSnapshots, prependChange } from './changelog'
 import { buildBotData } from './botData'
 import { renderCards } from './renderCards'
+import { renderLocMaps } from './locCards'
 import { syncMaps } from './maps'
 import { normalize, type RawInput } from './normalize'
 import { AREA_NAMES, GAME_JSON, MAP_FILES, ORGANIZED, RELICS, markersUrl } from './sources'
@@ -77,8 +78,10 @@ async function main() {
 
   for (const [path, data] of pendingRaw) writeJson(path, data)
   writeJson(join(OUT, 'changelog.json'), log)
-  writeJson(join(OUT, 'bot.json'), buildBotData(snap.miscrits, snap.regions))
+  let withCards = new Set<number>()
   try { await renderCards(snap.miscrits, join(OUT, 'cards')) } catch (e) { console.warn('  ! cards: ' + (e as Error).message) } // cards are nice-to-have
+  try { withCards = await renderLocMaps(snap.miscrits, snap.regions, snap.markers, join(OUT, 'maps'), join(OUT, 'locmap')) } catch (e) { console.warn('  ! loc maps: ' + (e as Error).message) }
+  writeJson(join(OUT, 'bot.json'), buildBotData(snap.miscrits, snap.regions, snap.markers, withCards))
   writeJson(join(OUT, 'miscrits.json'), snap.miscrits)
   writeJson(join(OUT, 'relics.json'), snap.relics)
   writeJson(join(OUT, 'regions.json'), snap.regions)

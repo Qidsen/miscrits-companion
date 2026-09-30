@@ -30,3 +30,11 @@ test('card layout shows day-exclusive rare miscrits first, at most 8, determinis
   expect(cardLayout(ms, 1)).toEqual([])
   for (const s of a) { expect(s.x).toBeGreaterThanOrEqual(0); expect(s.x + s.size).toBeLessThanOrEqual(1200) }
 })
+
+test('bot data carries the location-card flag and the first marker for map links', () => {
+  const ms = [mc(1, 'Common', [{ region: 'Forest', zone: '1', days: 'all' }]), mc(2, 'Rare', [])]
+  const markers = { Forest: [{ id: 'mk1', region: 'Forest', x: 1, y: 1, name: 'M1', miscritId: 1, rarity: 'Common', element: 'Fire', exactImg: null }] }
+  const back = expandBotData(buildBotData(ms, regions, markers, new Set([1]))).miscrits as unknown as { loc: boolean; marker: [string, string] | null }[]
+  expect(back[0]).toMatchObject({ loc: true, marker: ['Forest', 'mk1'] })
+  expect(back[1]).toMatchObject({ loc: false, marker: null })
+})

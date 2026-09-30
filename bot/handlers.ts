@@ -12,6 +12,8 @@ export interface BotDeps {
   deliver(m: OutMsg): Promise<'ok' | 'blocked' | 'error'>
   now(): Date
   siteUrl: string; botName: string; adminToken?: string
+  /** personalised card renderer (Netlify); without it the bot falls back to the day card + sprite album */
+  cardUrl?: string
 }
 
 const drop = (s: BotState, chatId: number): BotState =>
@@ -31,7 +33,7 @@ async function sendAll(d: BotDeps, msgs: OutMsg[]): Promise<'ok' | 'blocked' | '
 export async function handleUpdate(d: BotDeps, u: TgUpdate): Promise<void> {
   const before = await d.loadState()
   const { data } = await d.data()
-  const r = applyUpdate(before, u, { data, now: d.now(), siteUrl: d.siteUrl, botName: d.botName, adminToken: d.adminToken })
+  const r = applyUpdate(before, u, { data, now: d.now(), siteUrl: d.siteUrl, botName: d.botName, adminToken: d.adminToken, cardUrl: d.cardUrl })
   let state = { ...r.state, offset: before.offset } // offsets are a polling concept; keep the stored value stable
   const byChat = new Map<number, OutMsg[]>()
   for (const m of r.replies) byChat.set(m.chatId, [...(byChat.get(m.chatId) ?? []), m])
@@ -48,7 +50,7 @@ export async function runDaily(d: BotDeps): Promise<void> {
   const news = state.lastNewsDate === null ? [] : changelog.filter(e => !e.initial && e.date > state.lastNewsDate!)
   const { users, groups } = dailyTargets(state, now)
   const jobs = [
-    ...users.map(id => ({ id, msgs: personalMessages(id, data, state.subs.find(s => s.chatId === id)?.hunt ?? [], now, d.siteUrl) })),
+    ...users.map(id => ({ id, msgs: personalMessages(id, data, state.subs.find(s => s.chatId === id)?.hunt ?? [], now, d.siteUrl, d.cardUrl) })),
     ...groups.map(id => ({ id, msgs: groupMessages(id, data, now, d.siteUrl, news) })),
   ]
   for (const job of jobs) {
