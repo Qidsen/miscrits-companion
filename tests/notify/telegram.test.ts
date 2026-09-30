@@ -51,3 +51,12 @@ test('a failed photo falls back to plain text so the user still gets the digest'
   expect(await tg.deliver({ chatId: 1, photo: 'https://x/p.jpg', caption: 'cap' })).toBe('ok')
   expect(calls).toEqual(['sendPhoto', 'sendMessage'])
 })
+
+test('fetch is called unbound (Cloudflare Workers throw "Illegal invocation" otherwise)', async () => {
+  const strictFetch = function (this: unknown) {
+    if (this !== undefined && this !== globalThis) throw new TypeError('Illegal invocation')
+    return Promise.resolve(json(200, { ok: true, result: [] }))
+  } as unknown as typeof fetch
+  const tg = new TelegramClient('T', strictFetch, () => Promise.resolve())
+  expect(await tg.send(1, 'x')).toBe('ok')
+})

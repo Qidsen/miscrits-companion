@@ -18,7 +18,9 @@ export class TelegramClient {
       let status = 0
       let data: { ok: boolean; result?: unknown; description?: string; parameters?: { retry_after?: number } }
       try {
-        const res = await this.fetchImpl(`https://api.telegram.org/bot${this.token}/${method}`, {
+        // call unbound: Workers throw "Illegal invocation" when fetch runs with `this` = our object
+        const doFetch = this.fetchImpl
+        const res = await doFetch(`https://api.telegram.org/bot${this.token}/${method}`, {
           method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal: AbortSignal.timeout(30_000),
         })
         status = res.status
@@ -62,6 +64,10 @@ export class TelegramClient {
     if (status === 403 || (status === 400 && /chat not found/i.test(data.description ?? ''))) return 'blocked'
     console.warn(`send to chat failed: ${status} ${data.description}`)
     return 'error'
+  }
+
+  async webhookInfo() {
+    return (await this.call('getWebhookInfo', {})).data
   }
 
   async setWebhook(url: string, secret: string) {

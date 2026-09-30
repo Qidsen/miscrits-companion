@@ -53,6 +53,14 @@ export default {
       const s = await importState(deps(env), await req.json())
       return Response.json({ subs: s.subs.length, groups: s.groups.length })
     }
+    if (req.method === 'GET' && pathname === '/admin/status') {
+      if (!safeEqual(req.headers.get('X-Admin-Token'), env.ADMIN_TOKEN)) return new Response('forbidden', { status: 403 })
+      const s = await deps(env).loadState()
+      const info = (await new TelegramClient(env.TELEGRAM_TOKEN).webhookInfo()).result as Record<string, unknown> | undefined
+      // counts and webhook health only — no chat ids
+      return Response.json({ subs: s.subs.length, groups: s.groups.length, owner: s.owner !== null, lastDaily: s.lastDaily,
+        webhook: { pending: info?.pending_update_count, lastError: info?.last_error_message ?? null, url: String(info?.url ?? '').replace(/\/tg$/, '/tg') } })
+    }
     if (req.method === 'POST' && pathname === '/admin/set-webhook') {
       if (!safeEqual(req.headers.get('X-Admin-Token'), env.ADMIN_TOKEN)) return new Response('forbidden', { status: 403 })
       // the worker registers its own URL, so the bot token never has to leave Cloudflare
