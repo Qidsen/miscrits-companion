@@ -1,5 +1,5 @@
 import L from 'leaflet'
-import { useEffect, useMemo, useRef, type RefObject } from 'react'
+import { useCallback, useEffect, useMemo, useRef, type RefObject } from 'react'
 import { Circle, ImageOverlay, MapContainer, Marker as LMarker, Polygon, Popup, Tooltip, useMap } from 'react-leaflet'
 import type { MapInfo, Marker, Region } from '../data/types'
 import { avatarUrl, mapImageUrl } from '../data/images'
@@ -11,14 +11,16 @@ import { markerZone, type ZoneShape } from '../domain/zones'
 import { MarkerPopupCard } from './MarkerPopupCard'
 import './RegionMap.css'
 
+// the icon never depends on hover/focus state: swapping icons rebuilds the pin's DOM, which restarts
+// its CSS transitions (the map "jitters") and can swallow a click mid-press; state classes are toggled in place
 const iconCache = new Map<string, L.DivIcon>()
-function icon(mk: Marker, rarity: string, state: string) {
-  const key = `${mk.id}|${rarity}|${state}`
+function icon(mk: Marker, rarity: string) {
+  const key = `${mk.id}|${rarity}`
   let ic = iconCache.get(key)
   if (!ic) {
     ic = L.divIcon({
       className: '',
-      html: `<div class="map-pin rarity-${safeClass(rarity)} ${state}" title="${escapeHtml(mk.name)}"><img src="${escapeHtml(avatarUrl(mk.name))}" alt="${escapeHtml(mk.name)}" onerror="this.style.visibility='hidden'"/></div>`,
+      html: `<div class="map-pin rarity-${safeClass(rarity)}" title="${escapeHtml(mk.name)}"><img src="${escapeHtml(avatarUrl(mk.name))}" alt="${escapeHtml(mk.name)}" onerror="this.style.visibility='hidden'"/></div>`,
       iconSize: [40, 40], iconAnchor: [20, 20], popupAnchor: [0, -20],
     })
     iconCache.set(key, ic)
@@ -61,6 +63,57 @@ function PhoneCover({ map, markers }: { map: MapInfo; markers: Marker[] }) {
   return null
 }
 
+/**
+ * Replaces Leaflet's popup autoPan, which fights maxBounds: autoPan pans past the edge, maxBounds snaps back,
+ * the popup asks again — the map bounces. We pan only as far as the bounds allow, and open the popup
+ * below the pin when there is still no room above it.
+ */
+function PopupFit({ bounds }: { bounds: L.LatLngBoundsExpression }) {
+  const lmap = useMap()
+  useEffect(() => {
+    const PAD = 12
+    let raf = 0
+    // react-leaflet renders the popup's content after 'popupopen': measure once it is laid out
+    const onOpen = (e: L.PopupEvent) => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { raf = requestAnimationFrame(() => fit(e.popup)) }) }
+    const fit = (popup: L.Popup) => {
+      if (!lmap.hasLayer(popup)) return
+      const el = popup.getElement()
+      if (!el) return
+      el.classList.remove('mc-popup-below')
+      const box = lmap.getContainer().getBoundingClientRect(), r = el.getBoundingClientRect()
+      const want = L.point(
+        r.left - PAD < box.left ? r.left - PAD - box.left : r.right + PAD > box.right ? r.right + PAD - box.right : 0,
+        r.top - PAD < box.top ? r.top - PAD - box.top : 0)
+      const b = L.latLngBounds(bounds as L.LatLngBoundsLiteral), z = lmap.getZoom()
+      const view = lmap.getPixelBounds(), max = L.bounds(lmap.project(b.getNorthWest(), z), lmap.project(b.getSouthEast(), z))
+      const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, Math.min(0, lo)), Math.max(0, hi))
+      const pan = L.point(clamp(want.x, max.min!.x - view.min!.x, max.max!.x - view.max!.x), clamp(want.y, max.min!.y - view.min!.y, max.max!.y - view.max!.y))
+      if (pan.x || pan.y) lmap.panBy(pan, { animate: true, duration: 0.3 })
+      if (want.y < pan.y - 1) el.classList.add('mc-popup-below') // still clipped at the top: flip under the pin
+    }
+    lmap.on('popupopen', onOpen)
+    return () => { cancelAnimationFrame(raf); lmap.off('popupopen', onOpen) }
+  }, [lmap, bounds])
+  return null
+}
+
+const PIN_STATES = ['map-pin-dim', 'map-pin-pulse', 'map-pin-focus']
+function applyPinState(m: L.Marker | undefined, state: string[]) {
+  const pin = m?.getElement()?.querySelector('.map-pin')
+  if (pin) for (const c of PIN_STATES) pin.classList.toggle(c, state.includes(c))
+}
+
+/** Hover reports with a short grace period, so zone -> pin -> zone moves don't flash "no zone" in between. */
+function useZoneHover(onHover?: (z: string | null) => void) {
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useEffect(() => () => clearTimeout(timer.current), [])
+  return useCallback((z: string | null) => {
+    clearTimeout(timer.current)
+    if (z) onHover?.(z)
+    else timer.current = setTimeout(() => onHover?.(null), 60)
+  }, [onHover])
+}
+
 function ZoneLayer({ shapes, map, hovered, onHover }: { shapes: ZoneShape[]; map: MapInfo; hovered?: string | null; onHover?: (z: string | null) => void }) {
   const t = useT()
   return <>
@@ -88,6 +141,13 @@ export function RegionMap({ region, markers, compact, height = '100%', shapes = 
   const map = region.map!
   const bounds = useMemo<L.LatLngBoundsExpression>(() => [[0, 0], [map.height, map.width]], [map])
   const refs = useRef(new Map<string, L.Marker>())
+  const hoverZone = useZoneHover(onZoneHover)
+  const stateOf = (mk: Marker) => [
+    hoveredZone && markerZone(mk, byId) !== hoveredZone ? 'map-pin-dim' : '',
+    pulseMiscrit != null && mk.miscritId === pulseMiscrit ? 'map-pin-pulse' : '',
+    compact || flyTo?.id === mk.id ? 'map-pin-focus' : '',
+  ].filter(Boolean)
+  useEffect(() => { for (const mk of markers) applyPinState(refs.current.get(mk.id), stateOf(mk)) })
 
   return (
     <MapContainer key={region.name} crs={L.CRS.Simple} bounds={bounds} maxBounds={bounds} maxBoundsViscosity={0.8}
@@ -95,21 +155,21 @@ export function RegionMap({ region, markers, compact, height = '100%', shapes = 
       scrollWheelZoom={!compact} dragging={!compact} zoomControl={!compact} doubleClickZoom={!compact} touchZoom={!compact}
       boxZoom={!compact} keyboard={!compact} attributionControl={false}>
       <ImageOverlay url={mapImageUrl(map.file)} bounds={bounds} />
-      {!compact && <ZoneLayer shapes={shapes} map={map} hovered={hoveredZone} onHover={onZoneHover} />}
+      {!compact && <PopupFit bounds={bounds} />}
+      {!compact && <ZoneLayer shapes={shapes} map={map} hovered={hoveredZone} onHover={hoverZone} />}
       {!compact && !flyTo && <PhoneCover map={map} markers={markers} />}
       <FlyTo target={flyTo} map={map} zoom={compact ? -1 : 0} markers={markers} refs={refs} compact={compact} />
       {markers.map(mk => {
         const m = mk.miscritId !== null ? byId.get(mk.miscritId) : undefined
         const zone = markerZone(mk, byId)
-        const state = [
-          hoveredZone && zone !== hoveredZone ? 'map-pin-dim' : '',
-          pulseMiscrit != null && mk.miscritId === pulseMiscrit ? 'map-pin-pulse' : '',
-          compact || flyTo?.id === mk.id ? 'map-pin-focus' : '',
-        ].filter(Boolean).join(' ')
         return (
-          <LMarker key={mk.id} position={toLatLng(mk.x, mk.y, map)} icon={icon(mk, m?.rarity ?? mk.rarity, state)}
+          <LMarker key={mk.id} position={toLatLng(mk.x, mk.y, map)} icon={icon(mk, m?.rarity ?? mk.rarity)}
+            eventHandlers={compact ? undefined : {
+              mouseover: () => hoverZone(zone ?? null), mouseout: () => hoverZone(null), // a pin counts as part of its zone
+              add: e => applyPinState(e.target as L.Marker, stateOf(mk)),
+            }}
             ref={r => { if (r) refs.current.set(mk.id, r); else refs.current.delete(mk.id) }}>
-            {!compact && <Popup className="mc-popup" minWidth={240}><MarkerPopupCard marker={mk} miscrit={m} zoneName={zone ? zoneLabel(t, region.zones[zone] ?? `Zone ${zone}`) : undefined} day={day} /></Popup>}
+            {!compact && <Popup className="mc-popup" minWidth={240} autoPan={false}><MarkerPopupCard marker={mk} miscrit={m} zoneName={zone ? zoneLabel(t, region.zones[zone] ?? `Zone ${zone}`) : undefined} day={day} /></Popup>}
           </LMarker>
         )
       })}

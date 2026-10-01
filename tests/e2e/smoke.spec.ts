@@ -228,3 +228,52 @@ test('dex cards have separate hunt and caught buttons; catching ends the hunt', 
   await card.locator('.mcard-link').click()
   await expect(page.getByTestId('toggle-caught')).toHaveAttribute('aria-pressed', 'true')
 })
+
+test('moving between a zone and its pins never re-creates the pins (no jitter, no lost clicks)', async ({ page, isMobile }) => {
+  test.skip(!!isMobile, 'hover only')
+  await page.goto('#/map/Mount%20Gemma')
+  await page.locator('.leaflet-marker-icon').first().waitFor()
+  await page.waitForTimeout(500)
+  await page.evaluate(() => document.querySelectorAll('.map-pin').forEach(e => ((e as HTMLElement).dataset.orig = '1')))
+  // a pin drawn on top of a zone: the cursor crosses zone -> pin -> zone
+  const i = await page.evaluate(() => [...document.querySelectorAll('.leaflet-marker-icon')].findIndex(e => {
+    const r = e.getBoundingClientRect()
+    return document.elementFromPoint(r.left - 8, r.top + r.height / 2)?.tagName === 'path'
+  }))
+  expect(i).toBeGreaterThanOrEqual(0)
+  const box = (await page.locator('.leaflet-marker-icon').nth(i).boundingBox())!
+  const cy = box.y + box.height / 2
+  for (let x = box.x - 30; x <= box.x + box.width / 2; x += 4) await page.mouse.move(x, cy)
+  expect(await page.locator('.map-pin:not([data-orig])').count()).toBe(0)
+  // hovering a pin keeps its own zone highlighted instead of dropping the highlight
+  await expect(page.locator('.leaflet-marker-icon').nth(i).locator('.map-pin')).not.toHaveClass(/map-pin-dim/)
+})
+
+test('opening a popup near the map edge does not make the map bounce', async ({ page, isMobile }) => {
+  test.skip(!!isMobile, 'desktop layout')
+  await page.goto('#/map/Mount%20Gemma')
+  await page.locator('.leaflet-marker-icon').first().waitFor()
+  await page.waitForTimeout(500)
+  // the pin closest to the top edge of the map: its popup has no room above it
+  const i = await page.evaluate(() => {
+    const ys = [...document.querySelectorAll('.leaflet-marker-icon')].map(e => e.getBoundingClientRect().top)
+    return ys.indexOf(Math.min(...ys))
+  })
+  await page.evaluate(() => {
+    const w = window as unknown as { __ys: number[] }; w.__ys = []
+    const pane = document.querySelector('.leaflet-map-pane') as HTMLElement
+    const t0 = performance.now()
+    const f = () => { w.__ys.push(new DOMMatrix(getComputedStyle(pane).transform).f); if (performance.now() - t0 < 2000) requestAnimationFrame(f) }
+    f()
+  })
+  await page.locator('.leaflet-marker-icon').nth(i).click()
+  await page.waitForTimeout(2200)
+  const ys = await page.evaluate(() => (window as unknown as { __ys: number[] }).__ys)
+  let reversals = 0
+  for (let k = 2; k < ys.length; k++) if (Math.sign(ys[k] - ys[k - 1]) * Math.sign(ys[k - 1] - ys[k - 2]) < 0) reversals++
+  expect(reversals).toBeLessThanOrEqual(1)
+  const popup = (await page.locator('.leaflet-popup-content-wrapper').boundingBox())!
+  const stage = (await page.locator('.leaflet-container').boundingBox())!
+  expect(popup.y).toBeGreaterThanOrEqual(stage.y - 1)
+  expect(popup.y + popup.height).toBeLessThanOrEqual(stage.y + stage.height + 1)
+})
