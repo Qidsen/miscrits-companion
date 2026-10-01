@@ -26,3 +26,5 @@
 .popup-exact { border-radius: 8px; max-height: 140px; object-fit: contain; }
 .popup-btn { justify-content: center; margin-top: 2px; }
 .leaflet-container .popup-card a.btn-primary { color: #1b1206; }
+.leaflet-popup.mc-popup-below { bottom: auto !important; top: 26px; }
+.leaflet-popup.mc-popup-below .leaflet-popup-tip-container { position: absolute; top: -20px; transform: rotate(180deg); }
